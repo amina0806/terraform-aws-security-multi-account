@@ -1,0 +1,24 @@
+name: terraform-plan
+on:
+  pull_request:
+    paths: ["**/*.tf", ".github/workflows/**", "policies-as-code/**"]
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform -chdir=envs/dev init
+      - name: Format & Validate
+        run: |
+          terraform -chdir=envs/dev fmt -check
+          terraform -chdir=envs/dev validate
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.7
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+      - name: OPA Gate (Rego)
+        run: opa test policies-as-code/opa -v
+      - name: Terraform Plan (dev)
+        run: terraform -chdir=envs/dev plan -out=plan.tfplan

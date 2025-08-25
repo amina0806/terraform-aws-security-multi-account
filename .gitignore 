@@ -1,0 +1,11 @@
+# Terraform build artifacts
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+# keep the lock file 
+#! .terraform.lock.hcl
+
+# macOS
+.DS_Store
