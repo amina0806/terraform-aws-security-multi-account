@@ -53,8 +53,8 @@ Multi-account architecture with **AWS Organizations, SCP guardrails, centralized
 
 | Step | Screenshot |
 |------|------------|
-| ✅ S3 Backend Bucket (SSE-KMS + Versioning)|![S3 Backend](docs/screenshots/step1_state/state-s3-backend.png) |
-| ✅ DynamoDB Table for State Locking |![DynamoDB State Lock](docs/screenshots/step1_state/state-dynamodb.png) |
+| ✅ S3 Backend Bucket (SSE-KMS + Versioning) | ![S3 Backend](docs/screenshots/step1/state-s3-backend.png) |
+| ✅ DynamoDB Table for State Locking | ![DynamoDB State Lock](docs/screenshots/step1/state-dynamodb.png) |
 
 ---
 
@@ -92,12 +92,13 @@ Multi-account architecture with **AWS Organizations, SCP guardrails, centralized
 
 | Step | Screenshot |
 |------|------------|
-| ✅ KMS CMK Created (Rotation Enabled) | ![KMS Key](docs/screenshots/step2_logging/kms-key.png) |
-| ✅ Log Bucket Encryption (SSE-KMS) | ![S3 Encryption](docs/screenshots/step2_logging/s3-encryption.png) |
-| ✅ S3 Block Public Access ON | ![S3 BPA](docs/screenshots/step2_logging/s3-bpa.png) |
-| ✅ Log Bucket Policy (TLS-only + enforce KMS) | ![S3 Policy](docs/screenshots/step2_logging/s3-policy.png) |
-| ✅ CloudTrail Settings (Multi-Region, Validation, KMS) | ![CloudTrail Settings](docs/screenshots/step2_logging/cloudtrail-settings.png) |
-| ✅ CloudTrail Log Files in S3 (Proof) | ![CloudTrail S3 Objects](docs/screenshots/step2_logging/cloudtrail-s3-objects.png) |
+| ✅ KMS CMK Created (Rotation Enabled) | ![KMS Key](docs/screenshots/step2/kms-key.png) |
+| ✅ Log Bucket Encryption (SSE-KMS) | ![S3 Encryption](docs/screenshots/step2/s3-encryption.png) |
+| ✅ S3 Block Public Access ON | ![S3 BPA](docs/screenshots/step2/s3-bpa.png) |
+| ✅ Log Bucket Policy (TLS-only + enforce KMS) | ![S3 Policy](docs/screenshots/step2/s3-policy.png) |
+| ✅ CloudTrail Settings (Multi-Region, Validation, KMS) | ![CloudTrail Settings](docs/screenshots/step2/cloudtrail-settings.png) |
+| ✅ CloudTrail Log Files in S3 (Proof) | ![CloudTrail S3 Objects](docs/screenshots/step2/cloudtrail-s3-objects.png) |
+
 
 ---
 
