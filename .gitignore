@@ -1,0 +1,15 @@
+# ---- Terraform (keep the lock file tracked) ----
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+
+# Sensitive / local
+*.tfvars
+*.tfvars.json
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
