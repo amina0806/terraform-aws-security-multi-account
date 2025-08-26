@@ -54,7 +54,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### Screenshots (Step 1)
+### Screenshots (proof)
 
 | Step | Screenshot |
 |------|------------|
@@ -83,7 +83,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### NCA ECC (Essential Cybersecurity Controls) Mapping
+### Saudi Arabia- NCA ECC (Essential Cybersecurity Controls) Mapping
 
 - **ECC-1.2 Data Protection at Rest** → S3 backend encryption with KMS.  
 - **ECC-1.6 Secure Configuration Management** → Remote state ensures centralized control.  
@@ -102,7 +102,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### Screenshots (Step 2)
+### Screenshots (proof)
 
 | Step | Screenshot |
 |------|------------|
@@ -137,10 +137,104 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### NCA ECC (Essential Cybersecurity Controls) Mapping
+### Saudi Arabia - NCA ECC (Essential Cybersecurity Controls) Mapping
 
 - **ECC-1.2 Data Protection at Rest** → CloudTrail logs encrypted with KMS.  
 - **ECC-1.3 Data Protection in Transit** → TLS-only bucket policy.  
 - **ECC-3.1 Security Logging** → Multi-region CloudTrail with validation.  
 - **ECC-3.2 Log Protection** → S3 versioning + lifecycle + KMS key rotation.  
 - **ECC-5.1 Access Control** → Bucket policies restrict access to CloudTrail + account root.  
+
+
+---
+
+<br>
+
+# Step 3 — AWS Config + Conformance Pack
+
+This step extends the secure baseline with **continuous compliance monitoring**.  
+We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.  
+
+---
+
+## What this proves
+
+I can design and document an environment that not only enables secure logging (Step 2) but also **monitors compliance continuously** across accounts and regions.  
+This provides evidence for **security governance** and **cloud compliance frameworks** (ISO 27001, NCA ECC, UAE NESA).
+
+---
+
+##  Screenshots (Proof)
+
+| Step | Screenshot |
+|------|------------|
+| ✅ Config Settings (record all resources, include globals) | ![Config Settings](../screenshots/step3/step3_config_settings.png) |
+| ✅ S3 Delivery Bucket objects (AWSLogs/<acct>/Config/) | ![S3 Config Delivery](../screenshots/step3/step3_s3_config_delivery.png) |
+| ✅ Conformance Artifacts Bucket (artifacts/AWSLogs/<acct>/Config/) | ![S3 Conformance Artifacts](../screenshots/step3/step3_s3_conformance_artifacts.png) |
+| ✅ Conformance Pack deployed (`starter-dev`) | ![Conformance Pack](../screenshots/step3/step3_conformance_pack.png) |
+| ✅ Config Rules with evaluations | ![Config Rules](../screenshots/step3/step3_config_rules.png) |
+| (Optional) CLI — Recorders | ![CLI Recorders](../screenshots/step3/step3_cli_recorders.png) |
+| (Optional) CLI — Delivery Channels | ![CLI Delivery Channels](../screenshots/step3/step3_cli_delivery_channels.png) |
+| (Optional) CLI — Conformance Pack | ![CLI Conformance Pack](../screenshots/step3/step3_cli_conformance_pack.png) |
+
+---
+
+## Security Highlights
+
+- **AWS Config Recorder**: captures configuration changes for all supported resources, including global types.  
+- **Centralized Delivery Buckets**:  
+  - `baseline-config-delivery-<acct>-<region>` → stores configuration history & snapshots.  
+  - `awsconfigconforms-...` → stores Conformance Pack artifacts.  
+- **Service-Linked Roles**: ensure AWS Config + Conformance Packs can deliver securely with least privilege.  
+- **Conformance Pack (starter)**: 11 rules enforcing security baselines:  
+  - IAM password policy (≥14 chars)  
+  - Root account MFA enabled  
+  - Access keys rotated (≤90 days)  
+  - CloudTrail enabled  
+  - VPC Flow Logs enabled  
+  - EBS encryption by default  
+  - Attached volumes encrypted  
+  - RDS storage encrypted  
+  - S3 public read prohibited  
+  - S3 public write prohibited  
+  - S3 server-side encryption enabled  
+
+---
+
+## Compliance Mapping
+
+### ISO/IEC 27001:2013 (Annex A)
+
+| Control | Description | Implementation Evidence |
+|---------|-------------|--------------------------|
+| **A.12.4** | Logging and monitoring | Config records all resource changes; Conformance Pack enforces logging standards (CloudTrail, VPC Flow Logs). |
+| **A.8.20** | Use of cryptography | Rules check for encryption at rest (EBS, RDS, S3 SSE). |
+| **A.8.23** | Information security in cloud services | Continuous monitoring of cloud resources and policies. |
+| **A.8.16** | Monitoring activities | Config continuously evaluates compliance against rules. |
+| **A.18.2.3** | Technical compliance review | Conformance Pack provides automated compliance assessment. |
+
+---
+
+### Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)
+
+| Domain | Control | Implementation Evidence |
+|--------|---------|--------------------------|
+| **OAM-06** | Configuration management | AWS Config records and evaluates all resource changes. |
+| **OAM-08** | Security baselines | Conformance Pack rules enforce baselines for encryption, logging, and access controls. |
+| **DPS-01** | Data protection (encryption) | Rules require EBS, RDS, and S3 encryption. |
+| **LMP-04** | Log management | Rules ensure CloudTrail and VPC Flow Logs are enabled and delivered securely. |
+| **IAM-03** | Identity hardening | Rules enforce IAM password policies, MFA on root, and key rotation. |
+
+---
+
+### UAE — NESA / IAS Compliance
+
+| Domain | Requirement | Implementation Evidence |
+|--------|-------------|--------------------------|
+| **Information Systems Security** | Secure configuration baseline | AWS Config monitors drifts and applies baseline rules. |
+| **Data Protection** | Encryption of sensitive data | Rules enforce S3, RDS, and EBS encryption. |
+| **Audit & Accountability** | Logging of security events | CloudTrail & VPC Flow Log checks ensure audit trails. |
+| **Access Control** | Credential hygiene | Rules require password complexity, MFA, and key rotation. |
+| **Monitoring & Compliance** | Continuous assurance | Conformance Pack provides real-time compliance posture. |
+
+
