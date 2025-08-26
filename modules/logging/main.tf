@@ -20,6 +20,7 @@ locals {
   kms_alias = coalesce(var.kms_alias, "alias/${var.name_prefix}-logging")
 }
 
+
 # ---------- KMS (CMK) for CloudTrail ----------
 resource "aws_kms_key" "logging" {
   description         = "CMK for CloudTrail logs"
@@ -42,7 +43,7 @@ resource "aws_kms_key" "logging" {
         Effect   = "Allow",
         Principal = { Service = "cloudtrail.amazonaws.com" },
         Action   = [
-          "kms:Encrypt","kms:Decrypt","kms:ReEncrypt*",
+          "kms:Encrypt",
           "kms:GenerateDataKey*","kms:DescribeKey","kms:CreateGrant"
         ],
         Resource = "*",

@@ -1,9 +1,5 @@
-# 🌐 Terraform AWS Security Multi-account Project   
 
----
- **Overview** 
----
-
+📘 **Overview**  
 **Enterprise AWS Secure Baseline with Terraform**  
 Multi-account architecture with **AWS Organizations, SCP guardrails, centralized CloudTrail logging, KMS encryption, and CloudWatch integration**.  
 
