@@ -164,19 +164,18 @@ This provides evidence for **security governance** and **cloud compliance framew
 
 ---
 
-###  Screenshots — Step 3: AWS Config & Conformance Pack
+### 📸 Screenshots
 
-| Proof | File (click to open) | What it shows / how to verify |
-|------|-----------------------|-------------------------------|
-| Config → **Recorders (enabled)** | [cli_recorders.png](docs/screenshots/step3/cli_recorders.png) | `Recording all resources` = **ON**; `Include global resource types` = **ON**; recorder is active. |
-| Config → **Delivery channels** | [cli_delivery_channels.png](docs/screenshots/step3/cli_delivery_channels.png) | Delivery channel points to **baseline-config-delivery-…** bucket with prefix `AWSLogs/<account>/Config/`. |
-| Config → **Settings** | [config_settings.png](docs/screenshots/step3/config_settings.png) | Shows bucket/prefix summary; confirms toggles are ON. |
-| S3 → **Config delivery bucket** | [s3_config_delivery.png](docs/screenshots/step3/s3_config_delivery.png) | Objects exist under `AWSLogs/<account>/Config/`; bucket has **SSE-KMS**, BPA ON, Versioning enabled. |
-| S3 → **Conformance pack artifacts bucket** | [s3_conformance_artifacts.png](docs/screenshots/step3/s3_conformance_artifacts.png) | Objects exist under `artifacts/AWSLogs/<account>/Config/`; bucket has **SSE-KMS**, BPA ON, Versioning enabled. |
-| Config → **Conformance packs (starter-dev)** | [conformance_pack.png](docs/screenshots/step3/conformance_pack.png) | Status = **CREATE_COMPLETE**; shows ~11 managed rules applied. |
-| Config → **Rules list** | [config_rules.png](docs/screenshots/step3/config_rules.png) | Managed rule IDs visible (e.g., `CLOUD_TRAIL_ENABLED`, `VPC_FLOW_LOGS_ENABLED`, `ENCRYPTED_VOLUMES`). |
-| CLI → **Conformance pack** | [cli_conformance_pack.png](docs/screenshots/step3/cli_conformance_pack.png) | Output of `aws configservice describe-conformance-packs` shows pack state and details. |
-
+| Step | Screenshot |
+|------|------------|
+| ✅ Config Recorder Enabled | ![cli_recorders](docs/screenshots/step3/cli_recorders.png) |
+| ✅ Delivery Channel Created | ![cli_delivery_channels](docs/screenshots/step3/cli_delivery_channels.png) |
+| ✅ Config Settings (record all resources + include global types) | ![config_settings](docs/screenshots/step3/config_settings.png) |
+| ✅ Config Rules Evaluations | ![config_rules](docs/screenshots/step3/config_rules.png) |
+| ✅ Conformance Pack (starter-dev, Create complete) | ![conformance_pack](docs/screenshots/step3/conformance_pack.png) |
+| ✅ Conformance Pack via CLI | ![cli_conformance_pack](docs/screenshots/step3/cli_conformance_pack.png) |
+| ✅ S3 Delivery Bucket (AWSLogs/<acct>/Config/) | ![s3_config_delivery](docs/screenshots/step3/s3_config_delivery.png) |
+| ✅ S3 Conformance Artifacts Bucket (artifacts/AWSLogs/<acct>/Config/) | ![s3_conformance_artifacts](docs/screenshots/step3/s3_conformance_artifacts.png) |
 
 ---
 
