@@ -1,11 +1,15 @@
-# Terraform build artifacts
+# Terraform (keep the lock file tracked)
 .terraform/
 *.tfstate
 *.tfstate.*
-crash.log
-override.tf
-# keep the lock file 
-#! .terraform.lock.hcl
+.terraform.tfstate.lock.info
 
-# macOS
-.DS_Store
+# Local/sensitive
+*.tfvars
+*.tfvars.json
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
