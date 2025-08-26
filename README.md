@@ -1,7 +1,7 @@
 # Terraform AWS Secure Baseline — Portfolio Project
 
 
-📘 **Overview**  
+📘 **Overview**
 This portfolio demonstrates how to design, codify, and document a **secure AWS baseline** using Terraform. It begins with the foundations — **remote state management** and **centralized logging** — and will later expand into full enterprise guardrails (Organizations, Config, Security Hub, IAM, Policy-as-Code).
 
 
@@ -10,9 +10,9 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 - **Secure IaC foundations**: reliable remote state with encryption and locking
 - **Centralized audit logging**: CloudTrail → S3 + CloudWatch with KMS
 - **Encryption by default**: CMKs with rotation enabled
-- **Compliance readiness**: codified mappings to  
-  - Global: **CIS AWS Foundations**, **ISO/IEC 27001 Annex A**  
-  - Regional: **Saudi NCA Essential Cybersecurity Controls (ECC)**, **UAE NESA/IAS**  
+- **Compliance readiness**: codified mappings to
+  - Global: **CIS AWS Foundations**, **ISO/IEC 27001 Annex A**
+  - Regional: **Saudi NCA Essential Cybersecurity Controls (ECC)**, **UAE NESA/IAS**
 - **Evidence-based documentation**: console screenshots + Terraform code
 
 
@@ -25,18 +25,18 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 | **Step 1** | A.8.20 Use of cryptography (S3 backend with SSE-KMS)<br>A.8.23 Information security in cloud services (remote state segregation)<br>A.8.16 Access control (DynamoDB state locking) |
 | **Step 2** | A.12.4 Logging & monitoring (CloudTrail, CloudWatch)<br>A.8.20 Use of cryptography (CMK, SSE-KMS)<br>A.8.24 Data leakage prevention (Block Public Access, TLS-only)<br>A.8.16 Monitoring activities (log file validation, versioned bucket) |
 
-📄 Full mappings:  
-- [docs/iso27001-mapping.md](docs/iso27001-mapping.md)  
-- [docs/cis-controls-coverage.md](docs/cis-controls-coverage.md)  
-- [docs/nca-ecc-mapping.md](docs/nca-ecc-mapping.md)  
-- [docs/nesa-mapping.md](docs/nesa-mapping.md)  
+📄 Full mappings:
+- [docs/iso27001-mapping.md](docs/iso27001-mapping.md)
+- [docs/cis-controls-coverage.md](docs/cis-controls-coverage.md)
+- [docs/nca-ecc-mapping.md](docs/nca-ecc-mapping.md)
+- [docs/nesa-mapping.md](docs/nesa-mapping.md)
 
 
 <br>
 
 
-🖼️ **Architecture Diagram**  
-`docs/architecture-diagram.png`  
+🖼️ **Architecture Diagram**
+`docs/architecture-diagram.png`
 
 ---
 
@@ -54,7 +54,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### Screenshots (proof)
+### Screenshots
 
 | Step | Screenshot |
 |------|------------|
@@ -66,29 +66,29 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ### Security Highlights
 
-- **Centralized remote state** → Terraform state stored in secure S3 bucket.  
-- **Integrity & consistency** → DynamoDB table prevents concurrent state changes.  
-- **Encrypted at rest** → Backend bucket encrypted with AWS KMS CMK.  
-- **Versioning enabled** → Rollback and tamper detection for state files.  
-- **Least privilege IAM** → Access to state backend scoped to pipeline role only.  
+- **Centralized remote state** → Terraform state stored in secure S3 bucket.
+- **Integrity & consistency** → DynamoDB table prevents concurrent state changes.
+- **Encrypted at rest** → Backend bucket encrypted with AWS KMS CMK.
+- **Versioning enabled** → Rollback and tamper detection for state files.
+- **Least privilege IAM** → Access to state backend scoped to pipeline role only.
 
 ---
 
 ### ISO/IEC 27001 Annex A Mapping
 
-- **A.8.20 Use of cryptography** → State backend encrypted with KMS.  
-- **A.12.4 Logging & monitoring** → State versioning supports auditability.  
-- **A.5.23 Cloud security** → Enforced remote backend instead of local state.  
-- **A.8.16 Identity & access control** → IAM policies restrict access to state bucket/DDB.  
+- **A.8.20 Use of cryptography** → State backend encrypted with KMS.
+- **A.12.4 Logging & monitoring** → State versioning supports auditability.
+- **A.5.23 Cloud security** → Enforced remote backend instead of local state.
+- **A.8.16 Identity & access control** → IAM policies restrict access to state bucket/DDB.
 
 ---
 
 ### Saudi Arabia- NCA ECC (Essential Cybersecurity Controls) Mapping
 
-- **ECC-1.2 Data Protection at Rest** → S3 backend encryption with KMS.  
-- **ECC-1.6 Secure Configuration Management** → Remote state ensures centralized control.  
-- **ECC-5.1 Access Control** → Scoped IAM policies on state bucket and DDB.  
-- **ECC-6.2 Audit Logging** → Versioning provides history of changes.  
+- **ECC-1.2 Data Protection at Rest** → S3 backend encryption with KMS.
+- **ECC-1.6 Secure Configuration Management** → Remote state ensures centralized control.
+- **ECC-5.1 Access Control** → Scoped IAM policies on state bucket and DDB.
+- **ECC-6.2 Audit Logging** → Versioning provides history of changes.
 
 <br>
 <br>
@@ -102,7 +102,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ---
 
-### Screenshots (proof)
+### Screenshots
 
 | Step | Screenshot |
 |------|------------|
@@ -117,33 +117,33 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 ### Security Highlights
 
-- **Organization-wide audit trail** → CloudTrail multi-region enabled.  
-- **Tamper-proof logging** → Log file validation + SSE-KMS encryption.  
-- **Centralized evidence storage** → S3 log bucket with versioning and lifecycle.  
-- **Defense in depth** → TLS-only bucket policy and enforced KMS key usage.  
-- **Default deny** → Block Public Access prevents accidental exposure.  
+- **Organization-wide audit trail** → CloudTrail multi-region enabled.
+- **Tamper-proof logging** → Log file validation + SSE-KMS encryption.
+- **Centralized evidence storage** → S3 log bucket with versioning and lifecycle.
+- **Defense in depth** → TLS-only bucket policy and enforced KMS key usage.
+- **Default deny** → Block Public Access prevents accidental exposure.
 
 
 ---
 
 ### ISO/IEC 27001 Annex A Mapping
 
-- **A.12.4 Logging & monitoring** → CloudTrail captures all management events.  
-- **A.8.20 Use of cryptography** → Logs encrypted with KMS CMK.  
-- **A.8.24 Data leakage prevention** → TLS-only + BPA policies on log bucket.  
-- **A.5.23 Cloud security** → Centralized, immutable audit logs.  
-- **A.8.16 Identity & access control** → Access scoped by IAM & bucket policies.  
+- **A.12.4 Logging & monitoring** → CloudTrail captures all management events.
+- **A.8.20 Use of cryptography** → Logs encrypted with KMS CMK.
+- **A.8.24 Data leakage prevention** → TLS-only + BPA policies on log bucket.
+- **A.5.23 Cloud security** → Centralized, immutable audit logs.
+- **A.8.16 Identity & access control** → Access scoped by IAM & bucket policies.
 
 
 ---
 
 ### Saudi Arabia - NCA ECC (Essential Cybersecurity Controls) Mapping
 
-- **ECC-1.2 Data Protection at Rest** → CloudTrail logs encrypted with KMS.  
-- **ECC-1.3 Data Protection in Transit** → TLS-only bucket policy.  
-- **ECC-3.1 Security Logging** → Multi-region CloudTrail with validation.  
-- **ECC-3.2 Log Protection** → S3 versioning + lifecycle + KMS key rotation.  
-- **ECC-5.1 Access Control** → Bucket policies restrict access to CloudTrail + account root.  
+- **ECC-1.2 Data Protection at Rest** → CloudTrail logs encrypted with KMS.
+- **ECC-1.3 Data Protection in Transit** → TLS-only bucket policy.
+- **ECC-3.1 Security Logging** → Multi-region CloudTrail with validation.
+- **ECC-3.2 Log Protection** → S3 versioning + lifecycle + KMS key rotation.
+- **ECC-5.1 Access Control** → Bucket policies restrict access to CloudTrail + account root.
 
 
 ---
@@ -152,52 +152,53 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 # Step 3 — AWS Config + Conformance Pack
 
-This step extends the secure baseline with **continuous compliance monitoring**.  
-We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.  
+This step extends the secure baseline with **continuous compliance monitoring**.
+We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.
 
 ---
 
 ## What this proves
 
-I can design and document an environment that not only enables secure logging (Step 2) but also **monitors compliance continuously** across accounts and regions.  
+I can design and document an environment that not only enables secure logging (Step 2) but also **monitors compliance continuously** across accounts and regions.
 This provides evidence for **security governance** and **cloud compliance frameworks** (ISO 27001, NCA ECC, UAE NESA).
 
 ---
 
-##  Screenshots (Proof)
+###  Screenshots — Step 3: AWS Config & Conformance Pack
 
-| Step | Screenshot |
-|------|------------|
-| ✅ Config Settings (record all resources, include globals) | ![Config Settings](../screenshots/step3/step3_config_settings.png) |
-| ✅ S3 Delivery Bucket objects (AWSLogs/<acct>/Config/) | ![S3 Config Delivery](../screenshots/step3/step3_s3_config_delivery.png) |
-| ✅ Conformance Artifacts Bucket (artifacts/AWSLogs/<acct>/Config/) | ![S3 Conformance Artifacts](../screenshots/step3/step3_s3_conformance_artifacts.png) |
-| ✅ Conformance Pack deployed (`starter-dev`) | ![Conformance Pack](../screenshots/step3/step3_conformance_pack.png) |
-| ✅ Config Rules with evaluations | ![Config Rules](../screenshots/step3/step3_config_rules.png) |
-| (Optional) CLI — Recorders | ![CLI Recorders](../screenshots/step3/step3_cli_recorders.png) |
-| (Optional) CLI — Delivery Channels | ![CLI Delivery Channels](../screenshots/step3/step3_cli_delivery_channels.png) |
-| (Optional) CLI — Conformance Pack | ![CLI Conformance Pack](../screenshots/step3/step3_cli_conformance_pack.png) |
+| Proof | File (click to open) | What it shows / how to verify |
+|------|-----------------------|-------------------------------|
+| Config → **Recorders (enabled)** | [cli_recorders.png](docs/screenshots/step3/cli_recorders.png) | `Recording all resources` = **ON**; `Include global resource types` = **ON**; recorder is active. |
+| Config → **Delivery channels** | [cli_delivery_channels.png](docs/screenshots/step3/cli_delivery_channels.png) | Delivery channel points to **baseline-config-delivery-…** bucket with prefix `AWSLogs/<account>/Config/`. |
+| Config → **Settings** | [config_settings.png](docs/screenshots/step3/config_settings.png) | Shows bucket/prefix summary; confirms toggles are ON. |
+| S3 → **Config delivery bucket** | [s3_config_delivery.png](docs/screenshots/step3/s3_config_delivery.png) | Objects exist under `AWSLogs/<account>/Config/`; bucket has **SSE-KMS**, BPA ON, Versioning enabled. |
+| S3 → **Conformance pack artifacts bucket** | [s3_conformance_artifacts.png](docs/screenshots/step3/s3_conformance_artifacts.png) | Objects exist under `artifacts/AWSLogs/<account>/Config/`; bucket has **SSE-KMS**, BPA ON, Versioning enabled. |
+| Config → **Conformance packs (starter-dev)** | [conformance_pack.png](docs/screenshots/step3/conformance_pack.png) | Status = **CREATE_COMPLETE**; shows ~11 managed rules applied. |
+| Config → **Rules list** | [config_rules.png](docs/screenshots/step3/config_rules.png) | Managed rule IDs visible (e.g., `CLOUD_TRAIL_ENABLED`, `VPC_FLOW_LOGS_ENABLED`, `ENCRYPTED_VOLUMES`). |
+| CLI → **Conformance pack** | [cli_conformance_pack.png](docs/screenshots/step3/cli_conformance_pack.png) | Output of `aws configservice describe-conformance-packs` shows pack state and details. |
+
 
 ---
 
 ## Security Highlights
 
-- **AWS Config Recorder**: captures configuration changes for all supported resources, including global types.  
-- **Centralized Delivery Buckets**:  
-  - `baseline-config-delivery-<acct>-<region>` → stores configuration history & snapshots.  
-  - `awsconfigconforms-...` → stores Conformance Pack artifacts.  
-- **Service-Linked Roles**: ensure AWS Config + Conformance Packs can deliver securely with least privilege.  
-- **Conformance Pack (starter)**: 11 rules enforcing security baselines:  
-  - IAM password policy (≥14 chars)  
-  - Root account MFA enabled  
-  - Access keys rotated (≤90 days)  
-  - CloudTrail enabled  
-  - VPC Flow Logs enabled  
-  - EBS encryption by default  
-  - Attached volumes encrypted  
-  - RDS storage encrypted  
-  - S3 public read prohibited  
-  - S3 public write prohibited  
-  - S3 server-side encryption enabled  
+- **AWS Config Recorder**: captures configuration changes for all supported resources, including global types.
+- **Centralized Delivery Buckets**:
+  - `baseline-config-delivery-<acct>-<region>` → stores configuration history & snapshots.
+  - `awsconfigconforms-...` → stores Conformance Pack artifacts.
+- **Service-Linked Roles**: ensure AWS Config + Conformance Packs can deliver securely with least privilege.
+- **Conformance Pack (starter)**: 11 rules enforcing security baselines:
+  - IAM password policy (≥14 chars)
+  - Root account MFA enabled
+  - Access keys rotated (≤90 days)
+  - CloudTrail enabled
+  - VPC Flow Logs enabled
+  - EBS encryption by default
+  - Attached volumes encrypted
+  - RDS storage encrypted
+  - S3 public read prohibited
+  - S3 public write prohibited
+  - S3 server-side encryption enabled
 
 ---
 
@@ -236,5 +237,3 @@ This provides evidence for **security governance** and **cloud compliance framew
 | **Audit & Accountability** | Logging of security events | CloudTrail & VPC Flow Log checks ensure audit trails. |
 | **Access Control** | Credential hygiene | Rules require password complexity, MFA, and key rotation. |
 | **Monitoring & Compliance** | Continuous assurance | Conformance Pack provides real-time compliance posture. |
-
-
