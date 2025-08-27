@@ -99,48 +99,48 @@ data "aws_iam_policy_document" "bucket_security" {
   statement {
     sid    = "DenyInsecureTransport"
     effect = "Deny"
-    principals { 
+    principals {
       type = "*"
-      identifiers = ["*"] 
+      identifiers = ["*"]
     }
     actions   = ["s3:*"]
     resources = ["${aws_s3_bucket.logs.arn}/*", aws_s3_bucket.logs.arn]
-    condition { 
+    condition {
       test = "Bool"
       variable = "aws:SecureTransport"
-      values = ["false"] 
+      values = ["false"]
     }
   }
 
   statement {
     sid    = "DenyUnencryptedUploads"
     effect = "Deny"
-    principals { 
+    principals {
       type = "*"
-      identifiers = ["*"] 
+      identifiers = ["*"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/*"]
-    condition { 
+    condition {
       test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
-      values = ["aws:kms"] 
+      values = ["aws:kms"]
     }
   }
 
   statement {
     sid    = "DenyWrongKMSKey"
     effect = "Deny"
-    principals { 
+    principals {
       type = "*"
-      identifiers = ["*"] 
+      identifiers = ["*"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/*"]
-    condition { 
-      test = "StringNotEquals" 
+    condition {
+      test = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
-      values = [aws_kms_key.logging.arn] 
+      values = [aws_kms_key.logging.arn]
     }
   }
 }
@@ -151,25 +151,25 @@ data "aws_iam_policy_document" "bucket_cloudtrail_access" {
   statement {
     sid    = "AWSCloudTrailWrite"
     effect = "Allow"
-    principals { 
+    principals {
       type = "Service"
-      identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"] 
+      identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
-    condition { 
+    condition {
       test = "StringEquals"
       variable = "s3:x-amz-acl"
-      values = ["bucket-owner-full-control"] 
+      values = ["bucket-owner-full-control"]
     }
   }
 
   statement {
     sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
-    principals { 
+    principals {
       type = "Service"
-      identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"] 
+      identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"]
     }
     actions   = ["s3:GetBucketAcl"]
     resources = [aws_s3_bucket.logs.arn]

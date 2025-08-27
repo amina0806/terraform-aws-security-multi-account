@@ -1,7 +1,7 @@
 terraform {
   required_providers {
-    aws = { 
-      source = "hashicorp/aws", 
+    aws = {
+      source = "hashicorp/aws",
       version = "~> 5.0" }
   }
 }
@@ -102,19 +102,19 @@ resource "aws_dynamodb_table" "locks" {
   name         = "${var.name_prefix}-tf-locks"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
-  attribute { 
-   name = "LockID"; 
-   type = "S" 
+  attribute {
+   name = "LockID";
+   type = "S"
   }
 }
 
-output "state_bucket"  { 
-  value = aws_s3_bucket.state.bucket 
+output "state_bucket"  {
+  value = aws_s3_bucket.state.bucket
 }
-output "lock_table"    { 
-  value = aws_dynamodb_table.locks.name 
+output "lock_table"    {
+  value = aws_dynamodb_table.locks.name
 }
 
-output "kms_key_arn"   { 
-  value = aws_kms_key.state.arn 
+output "kms_key_arn"   {
+  value = aws_kms_key.state.arn
 }

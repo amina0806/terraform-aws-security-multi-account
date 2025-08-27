@@ -1,8 +1,8 @@
 variable "name_prefix"{
-  type = string 
+  type = string
 }
 variable "region" {
-    type = string 
+    type = string
 }
 
 variable "admin_role_arns" {

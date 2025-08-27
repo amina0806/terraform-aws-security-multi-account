@@ -236,3 +236,73 @@ This provides evidence for **security governance** and **cloud compliance framew
 | **Audit & Accountability** | Logging of security events | CloudTrail & VPC Flow Log checks ensure audit trails. |
 | **Access Control** | Credential hygiene | Rules require password complexity, MFA, and key rotation. |
 | **Monitoring & Compliance** | Continuous assurance | Conformance Pack provides real-time compliance posture. |
+
+
+---
+## Step 4 — Security Services (CSPM + Threat Detection)
+
+This step enables **AWS native CSPM and threat detection** services:
+
+- **Security Hub** with CIS AWS Foundations (v1.4.0) and AWS Foundational Security Best Practices (v1.0.0) standards.
+- **GuardDuty** detector with **S3 Protection** and **EC2 Malware Protection (EBS volumes)** enabled.
+- Policy-as-Code (OPA/Rego) rules enforce that Security Hub and GuardDuty **must be enabled** in every Terraform plan.
+
+---
+
+### 🚀 Terraform Highlights
+- `aws_securityhub_account` turns on Security Hub (CSPM engine).
+- `aws_securityhub_standards_subscription` attaches CIS + AFSBP standards.
+- `aws_guardduty_detector` enables GuardDuty with required datasources.
+- Variables exposed for version pinning (so you can adjust CIS/AFSBP versions easily).
+- Tags applied consistently for audit & compliance.
+
+---
+
+### 📑 Policy-as-Code (OPA/Rego)
+OPA rules under `policies-as-code/opa/rules/require-security-services.rego`:
+- Deny if Security Hub is missing.
+- Deny if GuardDuty is missing/disabled.
+- Deny if GuardDuty S3 protection or Malware Protection is off.
+- Deny if CIS or AFSBP standards not subscribed.
+
+OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
+
+---
+
+### 📸 Screenshots
+
+| Proof | Screenshot |
+|-------|------------|
+| ✅ Security Hub summary (enabled) | ![Security Hub Summary](docs/screenshots/step4/security-hub-summary.png) |
+| ✅ CIS standard enabled (v1.4.0) | ![CIS Standard](docs/screenshots/step4/security-hub-standards-cis.png) |
+| ✅ AFSBP standard enabled (v1.0.0) | ![AFSBP Standard](docs/screenshots/step4/security-hub-standards-afsbp.png) |
+| ✅ GuardDuty detector ON (with S3 + Malware Protection) | ![GuardDuty Settings](docs/screenshots/step4/guardduty-settings.png) |
+| ✅ OPA gate denial (Security Hub missing test) | ![OPA Deny](docs/screenshots/step4/opa-require-securityhub-deny.png) |
+
+---
+
+### 📜 Compliance Mapping
+
+- **ISO/IEC 27001 (Annex A)**
+  - A.12.4 Logging & monitoring → continuous posture findings.
+  - A.5.23 Cloud security (monitoring & detection).
+
+- **CIS AWS Foundations**
+  - Directly enforced via Security Hub CIS standard.
+
+- **Regional**
+  - **Saudi NCA ECC**: D5.5 Threat detection (GuardDuty), D1/D2 Logging + config compliance.
+  - **UAE NESA/IAS**: Security Monitoring, Threat/Vulnerability Management, Governance.
+
+---
+
+### ▶️ How to Run
+
+```bash
+cd envs/dev
+terraform init
+terraform plan -out plan.tfplan
+terraform apply plan.tfplan
+
+# Optional: validate Policy-as-Code
+opa test policies-as-code/opa -v

@@ -11,8 +11,8 @@ provider "aws" {
   region = var.region
 }
 
-variable "name_prefix" { 
-  type = string 
+variable "name_prefix" {
+  type = string
 }
 
 variable "admin_role_arns" {

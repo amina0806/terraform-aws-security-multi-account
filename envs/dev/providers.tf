@@ -11,7 +11,7 @@ provider "aws" {
   region = var.region
   default_tags {
     tags = {
-      Owner       = "Amina"
+      Owner       = "amina"
       Environment = var.env
       DataClass   = "Internal"
       Project     = "tf-aws-secure-baseline"

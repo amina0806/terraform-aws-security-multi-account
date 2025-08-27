@@ -1,7 +1,7 @@
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
-data "aws_partition" "current" {} 
+data "aws_partition" "current" {}
 data "aws_iam_role" "config" {
   name = "AWSServiceRoleForConfig"
 }
@@ -43,10 +43,10 @@ resource "aws_s3_bucket_versioning" "config_delivery" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "config_delivery" {
   bucket = aws_s3_bucket.config_delivery.id
-  rule { 
-    apply_server_side_encryption_by_default { 
-      sse_algorithm = "AES256" 
-    } 
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
 
@@ -148,7 +148,7 @@ resource "aws_s3_bucket_versioning" "conformance_artifacts" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "conformance_artifacts" {
   bucket = aws_s3_bucket.conformance_artifacts.id
-  
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"

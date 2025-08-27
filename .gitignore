@@ -1,8 +1,19 @@
-# ---- Terraform (keep the lock file tracked) ----
+# ---- Terraform (keep the lockfile tracked: .terraform.lock.hcl) ----
 .terraform/
 *.tfstate
 *.tfstate.*
 .terraform.tfstate.lock.info
+crash.log
+crash.*.log
+
+# Terraform plan outputs (binary + JSON you generate for OPA)
+*.tfplan
+**/plan.tfplan
+**/plan.json
+
+# Local override files (never commit)
+override.tf
+override.tf.json
 
 # Sensitive / local
 *.tfvars
@@ -10,6 +21,10 @@
 *.pem
 *.key
 
-# IDE
+# Optional: temp PaC work
+policies-as-code/opa-wip/
+
+# IDE / OS noise
 .vscode/
 .idea/
+.DS_Store
