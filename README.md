@@ -6,6 +6,7 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 
 ---
+
 📘 **What This Portfolio Demonstrates**
 - **Secure IaC foundations**: reliable remote state with encryption and locking
 - **Centralized audit logging**: CloudTrail → S3 + CloudWatch with KMS
@@ -17,10 +18,12 @@ This portfolio demonstrates how to design, codify, and document a **secure AWS b
 
 
 ---
+
 # ISO/IEC 27001 Annex A — Control Mapping (2013 → 2022)
 
 This document shows how the **2013 Annex A controls** map into the **2022 revision**.
 It demonstrates awareness of both versions — useful since many organizations are still transitioning.
+
 
 ---
 
@@ -31,6 +34,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 | S3 backend with SSE-KMS | A.8.20 Use of cryptography | 8.24 Use of cryptography |
 | Remote state segregation (multi-account, Org) | A.8.23 Information security in cloud services | 5.23 Information security for use of cloud services |
 | DynamoDB state locking (Terraform state protection) | A.8.16 Access control | 5.15 Access control |
+
 
 ---
 
@@ -43,6 +47,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 | Block Public Access, TLS-only | A.8.24 Data leakage prevention | 8.12 Data leakage prevention |
 | Log file validation, versioned bucket | A.8.16 Monitoring activities | 8.16 Monitoring activities |
 
+
 ---
 
 ## Step 3 — AWS Config & Conformance Packs
@@ -53,6 +58,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 | Conformance pack compliance checks | A.18.2.2 Compliance with security policies & standards | 5.36 Compliance with policies, rules and standards for information security |
 | Continuous compliance evaluation | A.12.7 Information systems audit considerations | 5.35 Independent review of information security |
 | Resource compliance monitoring | A.8.16 Monitoring activities | 8.16 Monitoring activities |
+
 
 ---
 
@@ -69,6 +75,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 
 
 
+
 📄 Full mappings:
 - [docs/iso27001-mapping.md](docs/iso27001-mapping.md)
 - [docs/cis-controls-coverage.md](docs/cis-controls-coverage.md)
@@ -76,15 +83,31 @@ It demonstrates awareness of both versions — useful since many organizations a
 - [docs/nesa-mapping.md](docs/nesa-mapping.md)
 
 
-<br>
 
 
-🖼️ **Architecture Diagram**
+
+---
+## Project Steps & Locations
+
+| Step | Purpose                          | Primary code locations                           | Proofs (screenshots)                    |
+|-----:|----------------------------------|---------------------------------------------------|-----------------------------------------|
+| 1    | State backend (S3+DDB, KMS)      | envs/dev/step1-state.tf, modules/state/*         | docs/screenshots/step1_*                |
+| 2    | Logging (CloudTrail, CW, KMS)    | envs/dev/step2-logging.tf, modules/logging/*     | docs/screenshots/step2_*                |
+| 3    | Config & Conformance             | envs/dev/step3-conformance.tf, envs/dev/conformance/step3-custom.yaml | docs/screenshots/step3_* |
+| 4    | Security Hub & GuardDuty         | envs/dev/step4-security.tf, modules/security/*   | docs/screenshots/step4_*                |
+| 5    | Policy-as-Code (OPA/Rego)        | policies-as-code/opa/**                          | docs/screenshots/step5_*                |
+| 6    | Organizations & SCPs (optional)  | envs/dev/step6-org-scps.tf, modules/org/scps/**  | docs/screenshots/step6_*                |
+
+
+
+
+**Architecture Diagram**
 `docs/architecture-diagram.png`
+
 
 ---
 
-📂 **Project Structure**
+ **Project Structure**
 
 ---
 
@@ -208,7 +231,7 @@ This provides evidence for **security governance** and **cloud compliance framew
 
 ---
 
-### 📸 Screenshots
+### Screenshots
 
 | Step | Screenshot |
 |------|------------|
@@ -247,7 +270,7 @@ This provides evidence for **security governance** and **cloud compliance framew
 
 ## Compliance Mapping
 
-### ISO/IEC 27001:2013 (Annex A)
+**ISO/IEC 27001:2013 (Annex A)**
 
 | Control | Description | Implementation Evidence |
 |---------|-------------|--------------------------|
@@ -259,7 +282,7 @@ This provides evidence for **security governance** and **cloud compliance framew
 
 ---
 
-### Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)
+**Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)**
 
 | Domain | Control | Implementation Evidence |
 |--------|---------|--------------------------|
@@ -271,7 +294,7 @@ This provides evidence for **security governance** and **cloud compliance framew
 
 ---
 
-### UAE — NESA / IAS Compliance
+**UAE — NESA / IAS Compliance**
 
 | Domain | Requirement | Implementation Evidence |
 |--------|-------------|--------------------------|
@@ -293,7 +316,7 @@ This step enables **AWS native CSPM and threat detection** services:
 
 ---
 
-### 🚀 Terraform Highlights
+### Terraform Highlights
 - `aws_securityhub_account` turns on Security Hub (CSPM engine).
 - `aws_securityhub_standards_subscription` attaches CIS + AFSBP standards.
 - `aws_guardduty_detector` enables GuardDuty with required datasources.
@@ -302,7 +325,7 @@ This step enables **AWS native CSPM and threat detection** services:
 
 ---
 
-### 📑 Policy-as-Code (OPA/Rego)
+###  Policy-as-Code (OPA/Rego)
 OPA rules under `policies-as-code/opa/rules/require-security-services.rego`:
 - Deny if Security Hub is missing.
 - Deny if GuardDuty is missing/disabled.
@@ -313,7 +336,7 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
 
 ---
 
-### 📸 Screenshots
+### Screenshots
 
 | Proof | Screenshot |
 |-------|------------|
@@ -325,7 +348,7 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
 
 ---
 
-### 📜 Compliance Mapping
+### Compliance Mapping
 
 - **ISO/IEC 27001 (Annex A)**
   - A.12.4 Logging & monitoring → continuous posture findings.
@@ -340,7 +363,7 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
 
 ---
 
-### ▶️ How to Run
+### How to Run
 
 ```bash
 cd envs/dev
