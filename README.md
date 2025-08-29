@@ -1,21 +1,16 @@
-# Terraform AWS Secure Baseline — Portfolio Project
 
+# Enterprise AWS Secure Baseline (Terraform + PaC)
 
-📘 **Overview**
-This portfolio demonstrates how to design, codify, and document a **secure AWS baseline** using Terraform. It begins with the foundations — **remote state management** and **centralized logging** — and will later expand into full enterprise guardrails (Organizations, Config, Security Hub, IAM, Policy-as-Code).
+This project demonstrates **how to design and enforce a secure AWS environment at enterprise scale.**
+It includes:
 
+- Multi-account setup with AWS Organizations & Service Control Policies
+- Centralized logging (CloudTrail, CloudWatch, S3 + KMS)
+- AWS Config Conformance Packs for compliance monitoring
+- Security Hub & GuardDuty as Cloud Security Posture Management (CSPM) tools
+- Policy-as-Code (OPA/Rego) to enforce encryption, IAM boundaries, and security service activation
 
----
-
-📘 **What This Portfolio Demonstrates**
-- **Secure IaC foundations**: reliable remote state with encryption and locking
-- **Centralized audit logging**: CloudTrail → S3 + CloudWatch with KMS
-- **Encryption by default**: CMKs with rotation enabled
-- **Compliance readiness**: codified mappings to
-  - Global: **CIS AWS Foundations**, **ISO/IEC 27001 Annex A**
-  - Regional: **Saudi NCA Essential Cybersecurity Controls (ECC)**, **UAE NESA/IAS**
-- **Evidence-based documentation**: console screenshots + Terraform code
-
+📑 Compliance Mapping: **ISO/IEC 27001 Annex A (2013 & 2022), Saudi NCA ECC, UAE NESA IAS**
 
 ---
 
