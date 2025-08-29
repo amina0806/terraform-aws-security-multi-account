@@ -99,6 +99,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 | 6    | Organizations & SCPs (optional)  | envs/dev/step6-org-scps.tf, modules/org/scps/**  | docs/screenshots/step6_*                |
 
 
+---
 
 
 **Architecture Diagram**
@@ -110,8 +111,6 @@ It demonstrates awareness of both versions — useful since many organizations a
  **Project Structure**
 
 ---
-
-<br>
 
 
 ### Step 1 — Remote State Backend
