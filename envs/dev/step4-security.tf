@@ -5,14 +5,14 @@ module "security_services" {
   tags        = local.tags
 
   # ---- Security Hub ----
-  enable_security_hub       = var.enable_security_hub
-  enable_security_hub_cis   = true
-  cis_version               = "1.4.0"
+  enable_security_hub     = var.enable_security_hub
+  enable_security_hub_cis = true
+  cis_version             = "1.4.0"
 
   enable_security_hub_afsbp = true
   afsbp_version             = "1.0.0"
 
-  enable_security_hub_nist  = true
+  enable_security_hub_nist = true
 
   # ---- GuardDuty ----
   enable_guardduty                 = var.enable_guardduty

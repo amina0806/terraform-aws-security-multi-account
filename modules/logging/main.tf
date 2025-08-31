@@ -1,7 +1,7 @@
 # --- Data sources ---
 data "aws_caller_identity" "current" {}
-data "aws_region"          "current" {}
-data "aws_partition"       "current" {}
+data "aws_region" "current" {}
+data "aws_partition" "current" {}
 
 # --- Locals (single block only) ---
 locals {
@@ -27,11 +27,11 @@ resource "aws_kms_key" "logging" {
   enable_key_rotation = true
 
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
-        Sid      = "AllowAccountRoot",
-        Effect   = "Allow",
+        Sid    = "AllowAccountRoot",
+        Effect = "Allow",
         Principal = {
           AWS = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"
         },
@@ -39,12 +39,12 @@ resource "aws_kms_key" "logging" {
         Resource = "*"
       },
       {
-        Sid      = "AllowCloudTrail",
-        Effect   = "Allow",
+        Sid       = "AllowCloudTrail",
+        Effect    = "Allow",
         Principal = { Service = "cloudtrail.amazonaws.com" },
-        Action   = [
+        Action = [
           "kms:Encrypt",
-          "kms:GenerateDataKey*","kms:DescribeKey","kms:CreateGrant"
+          "kms:GenerateDataKey*", "kms:DescribeKey", "kms:CreateGrant"
         ],
         Resource = "*",
         Condition = {
@@ -67,7 +67,8 @@ resource "aws_kms_alias" "logging" {
 
 # ------------------ S3 log bucket ------------------
 resource "aws_s3_bucket" "logs" {
-  bucket = local.bucket_name
+  bucket        = local.bucket_name
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "logs" {
@@ -100,15 +101,15 @@ data "aws_iam_policy_document" "bucket_security" {
     sid    = "DenyInsecureTransport"
     effect = "Deny"
     principals {
-      type = "*"
+      type        = "*"
       identifiers = ["*"]
     }
     actions   = ["s3:*"]
     resources = ["${aws_s3_bucket.logs.arn}/*", aws_s3_bucket.logs.arn]
     condition {
-      test = "Bool"
+      test     = "Bool"
       variable = "aws:SecureTransport"
-      values = ["false"]
+      values   = ["false"]
     }
   }
 
@@ -116,15 +117,15 @@ data "aws_iam_policy_document" "bucket_security" {
     sid    = "DenyUnencryptedUploads"
     effect = "Deny"
     principals {
-      type = "*"
+      type        = "*"
       identifiers = ["*"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/*"]
     condition {
-      test = "StringNotEquals"
+      test     = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption"
-      values = ["aws:kms"]
+      values   = ["aws:kms"]
     }
   }
 
@@ -132,15 +133,15 @@ data "aws_iam_policy_document" "bucket_security" {
     sid    = "DenyWrongKMSKey"
     effect = "Deny"
     principals {
-      type = "*"
+      type        = "*"
       identifiers = ["*"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/*"]
     condition {
-      test = "StringNotEquals"
+      test     = "StringNotEquals"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
-      values = [aws_kms_key.logging.arn]
+      values   = [aws_kms_key.logging.arn]
     }
   }
 }
@@ -152,15 +153,15 @@ data "aws_iam_policy_document" "bucket_cloudtrail_access" {
     sid    = "AWSCloudTrailWrite"
     effect = "Allow"
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"]
     }
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.logs.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "s3:x-amz-acl"
-      values = ["bucket-owner-full-control"]
+      values   = ["bucket-owner-full-control"]
     }
   }
 
@@ -168,7 +169,7 @@ data "aws_iam_policy_document" "bucket_cloudtrail_access" {
     sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"]
     }
     actions   = ["s3:GetBucketAcl"]
@@ -189,19 +190,22 @@ resource "aws_s3_bucket_policy" "logs" {
 }
 
 resource "aws_cloudtrail" "this" {
-  name                          = "${local.name_base}-trail"
-  is_multi_region_trail         = true
-  enable_log_file_validation    = true
+  count = var.enable_cloudtrail ? 1 : 0
 
-  s3_bucket_name                = aws_s3_bucket.logs.id
-  kms_key_id                    = aws_kms_key.logging.arn
+  name                       = "${local.name_base}-trail"
+  is_multi_region_trail      = true
+  enable_log_file_validation = true
+
+  s3_bucket_name = aws_s3_bucket.logs.id
+  kms_key_id     = aws_kms_key.logging.arn
 
   event_selector {
-    read_write_type             = "All"
-    include_management_events   = true
+    read_write_type           = "All"
+    include_management_events = true
   }
 
   tags = var.tags
 
+  # depends_on can target the whole resource even with count
   depends_on = [aws_s3_bucket_policy.logs]
 }

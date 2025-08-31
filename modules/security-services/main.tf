@@ -1,8 +1,8 @@
 
 # ------------------ Data ------------------
 data "aws_caller_identity" "current" {}
-data "aws_region"          "current" {}
-data "aws_partition"       "current" {}
+data "aws_region" "current" {}
+data "aws_partition" "current" {}
 
 locals {
   region    = data.aws_region.current.name
@@ -21,7 +21,7 @@ locals {
       enabled = var.enable_security_hub && var.enable_security_hub_nist
       # If you want NIST 800-53 rev 5, uncomment/set the correct ARN for your region/version
       # Check the exact ARN/version for your region if you enable this
-      arn     = "arn:${local.partition}:securityhub:${local.region}::standards/nist-800-53/v/5.0.0"
+      arn = "arn:${local.partition}:securityhub:${local.region}::standards/nist-800-53/v/5.0.0"
     }
   }
 }

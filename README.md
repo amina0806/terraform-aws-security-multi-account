@@ -81,6 +81,20 @@ It demonstrates awareness of both versions — useful since many organizations a
 | Policy-as-Code unit tests (`opa test`) validate rules | A.12.1.2 Change management | 5.14 Information security requirements for information systems |
 | GitHub Actions runs `opa test` in CI (portfolio mode) | A.18.2.3 Technical compliance review | 5.35 Independent review of information security |
 
+---
+
+## Step 6 — AWS Organizations & SCPs (Preventive Guardrails)
+
+| Implementation Example | 2013 Control (old numbering) | 2022 Control (new numbering) |
+|-------------------------|------------------------------|------------------------------|
+| Deny leaving the organization (DenyLeaveOrg SCP) | A.6.1.1 Information security roles & responsibilities | 5.2 Information security roles and responsibilities |
+| Protect Security Services (deny disabling CloudTrail, Config, GuardDuty, Security Hub) | A.12.4 Logging & monitoring | 8.15 Logging |
+| Restrict use of non-approved AWS regions | A.9.1.2 Access to networks and network services | 5.12 Classification and handling of information |
+| Require MFA for IAM write actions (toggle) | A.9.2.3 Management of privileged access rights | 5.18 Privileged access rights |
+| Deny all for root account (toggle, break-glass only) | A.9.2.1 User registration and de-registration | 5.17 Identity management |
+| Organization-wide governance with SCPs | A.5.1.1 Policies for information security | 5.1 Policies for information security |
+| Terraform-managed multi-account OUs and policies | A.12.1.2 Change management | 5.14 Information security requirements for information systems |
+
 
 
 📄 Full mappings:
@@ -411,7 +425,6 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
   - **UAE NESA/IAS**: Security Monitoring, Threat & Vulnerability Management, Compliance & Audit governance.
 
 
-
 ---
 
 ### Screenshots
@@ -424,3 +437,80 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
 | ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/step5/opa_eval_pass.png) |
 | ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/step5/ci-badge-step5.png) |
 | ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/step5/ci-run-step5.png) |
+
+---
+
+
+# Step 6 — AWS Organizations & Service Control Policies (SCPs)
+
+This step introduces **AWS Organizations** and **Service Control Policies (SCPs)** to enforce **preventive guardrails** across all accounts in the organization. Unlike detective controls (Config rules, Security Hub) or reactive monitoring (CloudTrail/GuardDuty), SCPs ensure that certain risky or non-compliant actions cannot even be attempted.
+
+---
+
+## What this proves
+
+- Design and deploy **multi-account guardrails** at the **organization root level**.
+- **Restrict regions** so workloads only run in approved geographies (e.g., `us-east-1`).
+- **Protect critical security services** (CloudTrail, Config, GuardDuty, Security Hub) from being disabled or tampered with.
+- **Enforce least privilege** across accounts using SCPs that apply consistently to OUs or the root.
+- Demonstrate the **preventive control layer** required by ISO 27001 and regional frameworks (Saudi NCA ECC, UAE NESA IAS).
+- Terraform module design: enabled toggles (`enable_protect_security_services`, `enable_require_mfa_iam`, `enable_deny_root_user`) show awareness of safe defaults and controlled “flip points” for stricter guardrails later.
+
+---
+
+## Screenshots
+
+| Proof | Screenshot |
+|-------|------------|
+| ✅ Organization **All features enabled** | ![org-settings-all-features](docs/screenshots/step6/org-settings-all-features.png) |
+| ✅ Root has **SCPs attached** | ![org-root-attached-scps](docs/screenshots/step6/org-root-attached-scps.png) |
+| ✅ OUs created (`infra`, `sandbox`, `security`, `workloads`) | ![org-ous-list](docs/screenshots/step6/org-ous-list.png) |
+| ✅ Protect Security Services policy (JSON deny for CloudTrail, Config, GuardDuty, Security Hub) | ![scp-protectsecurityservices-json](docs/screenshots/step6/scp-protectsecurityservices-json.png) |
+| ✅ Restrict Regions policy (JSON deny with `aws:RequestedRegion` condition) | ![scp-restrict-regions-json](docs/screenshots/step6/scp-restrict-regions-json.png) |
+| ✅ Terraform outputs showing Org ID, Root ID, OU IDs, Policy ARNs | ![tf-module-outputs](docs/screenshots/step6/tf-module-outputs.png) |
+
+
+---
+
+## Compliance Mapping
+
+- **ISO/IEC 27001:2013 (Annex A)**-
+
+  - A.5.1.1 Policies for information security → Organization-wide SCPs establish mandatory security rules.
+  - A.9.1.2 Access to networks and network services → RestrictRegions SCP enforces approved geographies.
+  - A.12.1.2 Change management → Preventive guardrails stop unauthorized configuration changes (e.g., disabling CloudTrail).
+  - A.12.4 Logging & monitoring → SCPs enforce continuous logging by denying stop/delete of CloudTrail, Config, GuardDuty, Security Hub.
+  - A.18.2.3 Technical compliance review → Guardrails act as a compliance baseline, preventing violations before they occur.
+
+
+- **CIS AWS Foundations**-
+
+  - 1.1 Ensure CloudTrail is enabled in all regions → Protected by `ProtectSecurityServices` SCP.
+  - 1.2 Ensure no unauthorized regions are used → `RestrictRegions` SCP enforces this.
+  - 1.5 Ensure configuration changes are logged and monitored → Config recorder cannot be disabled.
+
+
+- **Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)**-
+
+  - D5.2 Identity and Access Management → Require MFA for IAM (toggle, can be enforced later).
+  - D5.5 Threat detection → GuardDuty cannot be disabled
+  - D1/D2 Logging & monitoring → CloudTrail/Config cannot be disabled.
+  - CC-06 Compliance checks → SCPs enforce baseline governance across all accounts.
+
+
+- **UAE — NESA / IAS Compliance**-
+
+  - Security Monitoring & Governance → CloudTrail/Config logs enforced at org level.
+  - Threat & Vulnerability Management → GuardDuty enforced.
+  - Compliance & Audit Governance → SCPs provide preventive assurance that policies are followed across the enterprise.
+
+
+---
+
+
+## Highlights
+
+- **Preventive guardrails** complement detective controls (Config rules, Security Hub).
+- **Terraform modular design** with toggles allows gradual enforcement (safe defaults now, stricter later).
+- **Cloud Security Architecture maturity** → Moving from single-account security to **multi-account governance** at the organizational level.
+- **Auditable proof**: Both Terraform outputs and AWS Console screenshots show SCPs applied and effective.

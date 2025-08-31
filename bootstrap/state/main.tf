@@ -46,8 +46,8 @@ resource "aws_s3_bucket_public_access_block" "state" {
 # Enforce TLS (deny non-SSL)
 data "aws_iam_policy_document" "enforce_tls" {
   statement {
-    sid     = "DenyInsecureTransport"
-    effect  = "Deny"
+    sid    = "DenyInsecureTransport"
+    effect = "Deny"
 
     principals {
       type        = "*"

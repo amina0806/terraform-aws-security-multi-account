@@ -24,7 +24,7 @@ variable "kms_alias" {
 variable "tags" {
   description = "Common tags"
   type        = map(string)
-  default     = {
+  default = {
     Project = "tf-aws-secure-baseline"
     Purpose = "terraform-state"
     Owner   = "amina"

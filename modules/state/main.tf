@@ -47,6 +47,7 @@ resource "aws_kms_alias" "state" {
 # S3 bucket for remote state
 resource "aws_s3_bucket" "state" {
   bucket = "${var.name_prefix}-tfstate-${data.aws_caller_identity.current.account_id}-${var.region}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "state" {

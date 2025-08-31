@@ -10,6 +10,6 @@ variable "allowed_kms_key_arns" {
 }
 
 variable "path" {
-  type        = string
-  default     = "/permissions-boundary/"
+  type    = string
+  default = "/permissions-boundary/"
 }

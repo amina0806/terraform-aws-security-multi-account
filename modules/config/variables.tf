@@ -33,3 +33,9 @@ variable "enable_conformance_pack" {
   type        = bool
   default     = true
 }
+
+variable "enable_aws_config" {
+  description = "Enable or disable AWS Config setup"
+  type        = bool
+  default     = true
+}

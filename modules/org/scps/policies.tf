@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "scp_deny_putobject_no_kms" {
     sid       = "DenyPutObjectWithoutSSEHeader"
     effect    = "Deny"
     actions   = ["s3:PutObject"]
-    resources = ["*"]  # SCP requires "*"
+    resources = ["*"] # SCP requires "*"
 
     condition {
       test     = "Null"
@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "scp_deny_putobject_no_kms" {
     sid       = "DenyPutObjectIfNotKMS"
     effect    = "Deny"
     actions   = ["s3:PutObject"]
-    resources = ["*"]  # SCP requires "*"
+    resources = ["*"] # SCP requires "*"
 
     condition {
       test     = "StringNotEquals"
@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "scp_enforce_specific_kms" {
       sid       = "DenyPutObjectWithWrongKMSKey"
       effect    = "Deny"
       actions   = ["s3:PutObject"]
-      resources = ["*"]  # SCP requires "*"
+      resources = ["*"] # SCP requires "*"
 
       condition {
         test     = "Null"
@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "scp_protect_cloudtrail" {
       "cloudtrail:UpdateTrail",
       "cloudtrail:PutEventSelectors"
     ]
-    resources = ["*"]  # SCP requires "*"
+    resources = ["*"] # SCP requires "*"
   }
 }
 resource "aws_organizations_policy" "deny_putobject_no_kms" {

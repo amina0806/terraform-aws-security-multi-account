@@ -13,14 +13,15 @@ locals {
   cfg_bucket   = var.config_delivery_bucket_name != "" ? var.config_delivery_bucket_name : "${var.name_prefix}-config-delivery-${local.account_id}-${local.region}"
   cpack_bucket = var.conformance_artifacts_bucket_name != "" ? var.conformance_artifacts_bucket_name : "awsconfigconforms-${var.name_prefix}-${local.account_id}-${local.region}"
 
-  cfg_prefix_actual  = "AWSLogs/${local.account_id}/Config"
-  cpack_prefix = "artifacts"
+  cfg_prefix_actual = "AWSLogs/${local.account_id}/Config"
+  cpack_prefix      = "artifacts"
 }
 
 # ------------------ S3 bucket for AWS Config delivery ------------------
 resource "aws_s3_bucket" "config_delivery" {
-  bucket = local.cfg_bucket
-  tags   = var.tags
+  bucket        = local.cfg_bucket
+  force_destroy = true
+  tags          = var.tags
 }
 
 resource "aws_s3_bucket_ownership_controls" "config_delivery" {
@@ -124,8 +125,9 @@ resource "aws_s3_bucket_policy" "config_delivery" {
 
 # ------------------ S3 bucket for Conformance Pack artifacts ------------------
 resource "aws_s3_bucket" "conformance_artifacts" {
-  bucket = local.cpack_bucket
-  tags   = var.tags
+  bucket        = local.cpack_bucket
+  force_destroy = true
+  tags          = var.tags
 }
 
 resource "aws_s3_bucket_ownership_controls" "conformance_artifacts" {
@@ -160,8 +162,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "conformance_artif
 
 data "aws_iam_policy_document" "conformance_artifacts" {
   statement {
-    sid     = "ConformsListArtifactsPrefix"
-    effect  = "Allow"
+    sid    = "ConformsListArtifactsPrefix"
+    effect = "Allow"
     principals {
       type        = "Service"
       identifiers = ["config-conforms.amazonaws.com"]
@@ -186,8 +188,8 @@ data "aws_iam_policy_document" "conformance_artifacts" {
   }
 
   statement {
-    sid     = "ConformsReadArtifacts"
-    effect  = "Allow"
+    sid    = "ConformsReadArtifacts"
+    effect = "Allow"
     principals {
       type        = "Service"
       identifiers = ["config-conforms.amazonaws.com"]
@@ -214,7 +216,9 @@ resource "aws_s3_bucket_policy" "conformance_artifacts" {
 
 # ------------------ AWS Config: service-linked role + recorder + channel ------------------
 
+# Recorder
 resource "aws_config_configuration_recorder" "this" {
+  count    = var.enable_aws_config ? 1 : 0
   name     = "default"
   role_arn = data.aws_iam_role.config.arn
 
@@ -224,25 +228,31 @@ resource "aws_config_configuration_recorder" "this" {
   }
 }
 
+# Delivery channel
 resource "aws_config_delivery_channel" "this" {
+  count          = var.enable_aws_config ? 1 : 0
   name           = "default"
   s3_bucket_name = aws_s3_bucket.config_delivery.bucket
 
+  # when count=0 there is no element; when 1, index with [0]
   depends_on = [aws_config_configuration_recorder.this]
 }
 
+# Recorder status
 resource "aws_config_configuration_recorder_status" "this" {
-  name       = aws_config_configuration_recorder.this.name
+  count      = var.enable_aws_config ? 1 : 0
+  name       = aws_config_configuration_recorder.this[0].name
   is_enabled = true
   depends_on = [aws_config_delivery_channel.this]
 }
 
+
 # ------------------ Conformance Pack ------------------
 resource "aws_config_conformance_pack" "starter" {
-  count                   = var.enable_conformance_pack ? 1 : 0
-  name                    = var.conformance_pack_name
-  delivery_s3_bucket      = aws_s3_bucket.conformance_artifacts.bucket
-  delivery_s3_key_prefix  = local.cpack_prefix
-  template_body           = file("${path.module}/conformance-packs/starter.yaml")
-  depends_on              = [aws_config_configuration_recorder_status.this]
+  count                  = var.enable_conformance_pack ? 1 : 0
+  name                   = var.conformance_pack_name
+  delivery_s3_bucket     = aws_s3_bucket.conformance_artifacts.bucket
+  delivery_s3_key_prefix = local.cpack_prefix
+  template_body          = file("${path.module}/conformance-packs/starter.yaml")
+  depends_on             = [aws_config_configuration_recorder_status.this]
 }

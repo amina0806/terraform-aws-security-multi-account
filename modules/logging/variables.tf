@@ -37,3 +37,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_cloudtrail" {
+  description = "Enable or disable the CloudTrail setup"
+  type        = bool
+  default     = true
+}

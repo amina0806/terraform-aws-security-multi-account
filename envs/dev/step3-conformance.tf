@@ -2,8 +2,8 @@
 module "config" {
   source = "../../modules/config"
 
-  name_prefix = local.name_prefix
-
+  name_prefix             = local.name_prefix
+  enable_aws_config       = false
   conformance_pack_name   = "starter-dev"
   enable_conformance_pack = true
 
