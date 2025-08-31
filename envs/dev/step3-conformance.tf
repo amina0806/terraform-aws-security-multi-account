@@ -1,6 +1,6 @@
 
 module "config" {
-  source      = "../../modules/config"
+  source = "../../modules/config"
 
   name_prefix = local.name_prefix
 

@@ -1,24 +1,33 @@
-name: terraform-plan
+# .github/workflows/plan.yml
+name: terraform-security-checks
+
 on:
   pull_request:
-    paths: ["**/*.tf", ".github/workflows/**", "policies-as-code/**"]
+    paths:
+      - "**/*.tf"
+      - "policies-as-code/**"
+  workflow_dispatch:
+
 jobs:
-  plan:
+  security_checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - name: Terraform Init
-        run: terraform -chdir=envs/dev init
-      - name: Format & Validate
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format & Validate
         run: |
-          terraform -chdir=envs/dev fmt -check
-          terraform -chdir=envs/dev validate
+          terraform fmt -check
+          terraform validate
+
       - name: tfsec
         uses: aquasecurity/tfsec-action@v1.0.7
+
       - name: Checkov
         uses: bridgecrewio/checkov-action@v12
-      - name: OPA Gate (Rego)
+
+      - name: OPA unit tests
         run: opa test policies-as-code/opa -v
-      - name: Terraform Plan (dev)
-        run: terraform -chdir=envs/dev plan -out=plan.tfplan

@@ -14,7 +14,7 @@ It includes:
 
 ---
 
-# ISO/IEC 27001 Annex A — Control Mapping (2013 → 2022)
+## ISO/IEC 27001 Annex A — Control Mapping (2013 → 2022)
 
 This document shows how the **2013 Annex A controls** map into the **2022 revision**.
 It demonstrates awareness of both versions — useful since many organizations are still transitioning.
