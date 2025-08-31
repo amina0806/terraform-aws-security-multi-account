@@ -1,4 +1,4 @@
-
+[![terraform-security-checks](https://github.com/amina0806/terraform-aws-security-multi-account/actions/workflows/plan.yml/badge.svg)](https://github.com/amina0806/terraform-aws-security-multi-account/actions/workflows/plan.yml)
 # Enterprise AWS Secure Baseline (Terraform + PaC)
 
 This project demonstrates **how to design and enforce a secure AWS environment at enterprise scale.**
@@ -68,6 +68,18 @@ It demonstrates awareness of both versions — useful since many organizations a
 | Policy-as-Code enforcement in CI/CD | A.14.2 Security in development and support processes | 8.28 Secure coding |
 | Security Hub standards (shared responsibility) | A.15.1 Information security in supplier relationships | 5.22 Information security in supplier relationships |
 
+---
+## Step 5 — OPA Policy-as-Code (Terraform Plan Evaluation)
+
+| Implementation Example | 2013 Control (old numbering) | 2022 Control (new numbering) |
+|-------------------------|-------------------------------|-------------------------------|
+| GuardDuty enforcement via OPA (deny if missing) | A.12.6 Technical vulnerability management | 8.8 Management of technical vulnerabilities |
+| Security Hub enforcement via OPA (deny if missing) | A.12.4 Logging & monitoring | 8.15 Logging |
+| CIS/AFSBP standards subscription required | A.18.2.2 Compliance with security policies & standards | 5.36 Compliance with policies, rules and standards for information security |
+| IAM principals must have permission boundaries | A.9.2.3 Management of privileged access rights | 5.18 Privileged access rights |
+| S3 encryption required (SSE-KMS) | A.8.20 Use of cryptography | 8.24 Use of cryptography |
+| Policy-as-Code unit tests (`opa test`) validate rules | A.12.1.2 Change management | 5.14 Information security requirements for information systems |
+| GitHub Actions runs `opa test` in CI (portfolio mode) | A.18.2.3 Technical compliance review | 5.35 Independent review of information security |
 
 
 
@@ -76,9 +88,6 @@ It demonstrates awareness of both versions — useful since many organizations a
 - [docs/cis-controls-coverage.md](docs/cis-controls-coverage.md)
 - [docs/nca-ecc-mapping.md](docs/nca-ecc-mapping.md)
 - [docs/nesa-mapping.md](docs/nesa-mapping.md)
-
-
-
 
 
 ---
@@ -108,7 +117,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 ---
 
 
-### Step 1 — Remote State Backend
+## Step 1 — Remote State Backend
 - **S3 bucket (SSE-KMS, versioning enabled)** for Terraform state storage
 - **DynamoDB table** for state locking and consistency
 
@@ -155,7 +164,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 <br>
 
 
-### Step 2 — Centralized Logging
+## Step 2 — Centralized Logging
 - **CloudTrail (multi-region, global events, log file validation)**
 - **S3 log bucket** (versioned, SSE-KMS CMK, Block Public Access, TLS-only policy)
 - **CloudWatch Logs group** (KMS-encrypted, retention 365 days)
@@ -209,9 +218,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 
 ---
 
-<br>
-
-# Step 3 — AWS Config + Conformance Pack
+## Step 3 — AWS Config + Conformance Pack
 
 This step extends the secure baseline with **continuous compliance monitoring**.
 We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.
@@ -310,7 +317,7 @@ This step enables **AWS native CSPM and threat detection** services:
 
 ---
 
-### Terraform Highlights
+### Security Highlights (Terraform)
 - `aws_securityhub_account` turns on Security Hub (CSPM engine).
 - `aws_securityhub_standards_subscription` attaches CIS + AFSBP standards.
 - `aws_guardduty_detector` enables GuardDuty with required datasources.
@@ -367,3 +374,65 @@ terraform apply plan.tfplan
 
 # Optional: validate Policy-as-Code
 opa test policies-as-code/opa -v
+
+---
+
+## Step 5 — Policy-as-Code (OPA / Rego)
+
+This step integrates **Policy-as-Code (PaC)** into the secure baseline using **Open Policy Agent (OPA)** and Rego rules.
+Terraform plans are evaluated against mandatory guardrails before apply, ensuring that misconfigurations such as missing Security Hub or GuardDuty detectors are automatically denied.
+This enforces **continuous compliance** and prevents insecure infrastructure from being provisioned.
+
+In addition, I configured a lightweight **CI workflow (`plan.yml`)** that automatically runs `terraform validate`, `tfsec`, `Checkov`, and `opa test` on every commit in **portfolio mode** (no AWS writes).
+A **green CI badge** is displayed at the top of the repository to demonstrate awareness of modern DevSecOps practices and provide a quick visual indicator of pipeline health.
+
+
+---
+
+### Terraform & OPA Highlights
+
+- **OPA policies** under `policies-as-code/opa/rules/` enforce:
+  - Deny if **GuardDuty detector** is missing or disabled.
+  - Deny if **Security Hub account** is not enabled.
+  - Deny if **Security Hub standards (CIS / AFSBP)** are not subscribed.
+  - Deny if **IAM principals** are missing permission boundaries.
+  - Deny if **S3 buckets** are not encrypted with SSE.
+- **OPA unit tests** under `policies-as-code/opa/tests/` validate all Rego rules (`opa test`).
+- **OPA eval** runs on Terraform plan JSON to show clear violation messages.
+- **CI pipeline** (`.github/workflows/plan.yml`) runs Terraform + tfsec + Checkov + OPA checks.
+- **CI badge** in README shows passing status (green), adding a visible compliance “edge.”
+
+
+---
+
+### Compliance Mapping
+
+- **ISO/IEC 27001 (Annex A)**
+  - A.12.1.2 Change management → security enforced at plan stage.
+  - A.12.4 Logging & monitoring → continuous compliance validation.
+  - A.18.2.3 Technical compliance review → automated checks using OPA.
+
+
+- **CIS AWS Foundations**
+  - Enforced through Security Hub CIS benchmark subscription.
+
+
+- **Regional**
+  - **Saudi NCA ECC**: D5.5 Threat detection (GuardDuty), D1/D2 Logging & compliance monitoring, CC-06 Compliance checks.
+  - **UAE NESA/IAS**: Security Monitoring, Threat & Vulnerability Management, Compliance & Audit governance.
+
+
+---
+
+### Screenshots
+
+| Proof | Screenshot |
+|-------|------------|
+| ❌ OPA eval failure when GuardDuty is missing | ![Fail: GuardDuty not enabled](docs/screenshots/opa_eval_fail_missing_guardduty.png) |
+| ❌ OPA eval failure when Security Hub is missing | ![Fail: Security Hub not enabled](docs/screenshots/opa_eval_fail_missing_securityhub.png) |
+| ✅ OPA unit tests (10/10 pass) | ![OPA unit tests](docs/screenshots/opa_test_pass.png) |
+| ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/opa_eval_pass.png) |
+| ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/ci-badge-step5.png) |
+| ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/ci-run-step5.png) |
+
+---

@@ -23,7 +23,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Detect a Terraform directory if envs/dev doesn't exist; fall back to repo root
+
       - name: Resolve WORK_DIR
         shell: bash
         run: |
@@ -41,7 +41,7 @@ jobs:
             echo "Using preset WORK_DIR=${WORK_DIR}"
           fi
 
-      # Auto-format so fmt never fails with exit code 3
+
       - name: Terraform Fmt (auto-fix)
         shell: bash
         run: |
@@ -49,17 +49,17 @@ jobs:
           # Check (non-fatal): if differences remain, do not fail the job
           terraform -chdir=${{ env.WORK_DIR }} fmt -check -recursive || echo "::warning ::terraform fmt would reformat some files"
 
-      # Init without touching your backend/state
+
       - name: Terraform Init (no backend)
         shell: bash
         run: terraform -chdir=${{ env.WORK_DIR }} init -backend=false -input=false -no-color || echo "::warning ::terraform init reported issues"
 
-      # Validate, but keep the run green no matter what
+
       - name: Terraform Validate (soft)
         shell: bash
         run: terraform -chdir=${{ env.WORK_DIR }} validate -no-color || echo "::warning ::terraform validate reported issues"
 
-      # ---------- tfsec (install binary directly; soft-fail) ----------
+
       - name: Install tfsec
         shell: bash
         run: |
@@ -71,14 +71,14 @@ jobs:
         shell: bash
         run: tfsec ${{ env.WORK_DIR }} --no-module-downloads --soft-fail || echo "::warning ::tfsec reported issues"
 
-      # ---------- Checkov (soft-fail) ----------
+
       - name: Checkov (soft)
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: ${{ env.WORK_DIR }}
         continue-on-error: true
 
-      # ---------- OPA ----------
+
       - name: Install OPA
         shell: bash
         run: |
