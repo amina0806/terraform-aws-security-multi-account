@@ -1,4 +1,3 @@
-# .github/workflows/plan.yml
 name: terraform-security-checks
 
 on:
@@ -15,7 +14,6 @@ jobs:
     env:
       WORK_DIR: envs/dev
       OPA_DIR: policies-as-code/opa
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,14 +29,17 @@ jobs:
           terraform -chdir=${{ env.WORK_DIR }} fmt -check
           terraform -chdir=${{ env.WORK_DIR }} validate
 
-      # ✅ Use a valid tfsec action ref
-      - name: tfsec
-        uses: aquasecurity/tfsec-action@v1
-        with:
-          working_directory: ${{ env.WORK_DIR }}
+      # tfsec without the action (install binary)
+      - name: Install tfsec
+        run: |
+          curl -sL https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64 -o tfsec
+          chmod +x tfsec && sudo mv tfsec /usr/local/bin/tfsec
+          tfsec --version
+      - name: Run tfsec (soft)
+        run: tfsec ${{ env.WORK_DIR }} --no-module-downloads --soft-fail
         continue-on-error: true
 
-      - name: Checkov
+      - name: Checkov (soft)
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: ${{ env.WORK_DIR }}
@@ -50,6 +51,6 @@ jobs:
           chmod +x opa && sudo mv opa /usr/local/bin/opa
           opa version
 
-      - name: OPA unit tests
+      - name: OPA unit tests (soft)
         run: opa test ${{ env.OPA_DIR }} -v
         continue-on-error: true
