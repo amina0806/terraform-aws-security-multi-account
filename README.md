@@ -365,6 +365,7 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
 
 ---
 
+
 ## Step 5 — Policy-as-Code (OPA / Rego)
 
 This step integrates **Policy-as-Code (PaC)** into the secure baseline using **Open Policy Agent (OPA)** and Rego rules.
@@ -390,8 +391,8 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
 - **CI pipeline** (`.github/workflows/plan.yml`) runs Terraform + tfsec + Checkov + OPA checks.
 - **CI badge** in README shows passing status (green), adding a visible compliance “edge.”
 
-
 ---
+
 
 ### Compliance Mapping
 
@@ -410,15 +411,16 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
   - **UAE NESA/IAS**: Security Monitoring, Threat & Vulnerability Management, Compliance & Audit governance.
 
 
+
 ---
 
 ### Screenshots
 
 | Proof | Screenshot |
 |-------|------------|
-| ❌ OPA eval failure when GuardDuty is missing | ![Fail: GuardDuty not enabled](docs/screenshots/opa_eval_fail_missing_guardduty.png) |
-| ❌ OPA eval failure when Security Hub is missing | ![Fail: Security Hub not enabled](docs/screenshots/opa_eval_fail_missing_securityhub.png) |
-| ✅ OPA unit tests (10/10 pass) | ![OPA unit tests](docs/screenshots/opa_test_pass.png) |
-| ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/opa_eval_pass.png) |
-| ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/ci-badge-step5.png) |
-| ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/ci-run-step5.png) |
+| ❌ OPA eval failure when GuardDuty is missing | ![Fail: GuardDuty not enabled](docs/screenshots/step5/opa_eval_fail_missing_guardduty.png) |
+| ❌ OPA eval failure when Security Hub is missing | ![Fail: Security Hub not enabled](docs/screenshots/step5/opa_eval_fail_missing_securityhub.png) |
+| ✅ OPA unit tests (10/10 pass) | ![OPA unit tests](docs/screenshots/step5/opa_test_pass.png) |
+| ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/step5/opa_eval_pass.png) |
+| ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/step5/ci-badge-step5.png) |
+| ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/step5/ci-run-step5.png) |
