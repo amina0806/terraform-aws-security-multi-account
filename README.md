@@ -362,18 +362,6 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
   - **Saudi NCA ECC**: D5.5 Threat detection (GuardDuty), D1/D2 Logging + config compliance.
   - **UAE NESA/IAS**: Security Monitoring, Threat/Vulnerability Management, Governance.
 
----
-
-### How to Run
-
-```bash
-cd envs/dev
-terraform init
-terraform plan -out plan.tfplan
-terraform apply plan.tfplan
-
-# Optional: validate Policy-as-Code
-opa test policies-as-code/opa -v
 
 ---
 
@@ -434,5 +422,3 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
 | ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/opa_eval_pass.png) |
 | ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/ci-badge-step5.png) |
 | ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/ci-run-step5.png) |
-
----
