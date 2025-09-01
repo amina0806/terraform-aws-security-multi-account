@@ -12,100 +12,146 @@ It includes:
 
 ---
 
+## Table of Contents
+- [Features](#features)
+- [🛠️ Deployment](#-deployment)
+- [Audit Checklist](docs/audit-checklist.md)
+- [📑 Compliance Mapping](#-compliance-mapping)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Detailed Steps & Evidence](#detailed-steps--evidence)
+  - [Step 1 — Remote State Backend (Detailed Evidence)](#step-1--remote-state-backend-detailed-evidence)
+  - [Step 2 — Centralized Logging (Detailed Evidence)](#step-2--centralized-logging-detailed-evidence)
+  - [Step 3 — AWS Config & Conformance Pack (Detailed Evidence)](#step-3--aws-config--conformance-pack-detailed-evidence)
+  - [Step 4 — Security Services (CSPM + Threat Detection) (Detailed Evidence)](#step-4--security-services-cspm--threat-detection-detailed-evidence)
+  - [Step 5 — Policy-as-Code (OPA/Rego) (Detailed Evidence)](#step-5--policy-as-code-oparego-detailed-evidence)
+  - [Step 6 — AWS Organizations & SCPs (Detailed Evidence)](#step-6--aws-organizations--scps-detailed-evidence)
+- [CI/CD & Security Gates](#cicd--security-gates)
+- [Inputs & Variables](#inputs--variables)
+- [Troubleshooting](#troubleshooting)
+- [Contact](#contact)
+
+
+---
+
+### Features
+- **AWS Organizations + SCPs**: region restriction, deny root, protect security services, (optional) require MFA for IAM writes.
+- **Centralized Logging**: CloudTrail (multi-region, validation), KMS-encrypted S3 log bucket, CloudWatch Logs.
+- **Continuous Compliance**: AWS Config + starter Conformance Pack.
+- **CSPM + Threat Detection**: Security Hub (CIS + AFSBP), GuardDuty (S3 Protection + Malware Protection).
+- **Policy-as-Code**: OPA/Rego checks on Terraform **plan.json** + tfsec + Checkov.
+- **Evidence-first**: curated screenshots & outputs managers can audit quickly.
+
+---
+
+## 🛠️ Deployment
+
+This baseline supports multiple environments (e.g., `dev`, `prod`) using **remote state + locking** and **pre-apply security validation**.
+
+### 1) Prerequisites
+- **AWS CLI** with admin role/session (**MFA recommended**).
+- **Terraform v1.6+** locally or in CI.
+- **Remote state backend** (one-time):
+  > For regions **other than `us-east-1`**, add: `--create-bucket-configuration LocationConstraint=<region>`
+
+```bash
+aws s3api create-bucket --bucket amina-tf-state --region us-east-1
+aws dynamodb create-table \
+  --table-name amina-tf-locks \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST
+
+```
+
+### 2) Initialize environment
+
+```bash
+cd envs/dev
+terraform init \
+  -backend-config="bucket=amina-tf-state" \
+  -backend-config="dynamodb_table=amina-tf-locks" \
+  -backend-config="key=dev/terraform.tfstate" \
+  -backend-config="region=us-east-1"
+```
+
+
+### 3) Plan & validate (security gates)
+
+```bash
+terraform plan -out=tfplan
+terraform show -json tfplan > plan.json
+
+tfsec .
+checkov -d .
+opa eval -d ../../policies-as-code/opa -i plan.json "data.terraform.security.deny"
+```
+
+
+### 4) Apply the reviewed plan
+
+```bash
+terraform apply tfplan
+```
+
+
+### 5) Verify key outcomes
+
+- **Organizations**: OUs present, SCPs attached to Root/OU/accounts.
+
+- **CloudTrail**: multi-region, KMS-encrypted, log file validation enabled.
+
+- **Security Hub / GuardDuty**: enabled and (optionally) aggregated; CIS + AFSBP subscribed.
+
+- **IAM**: root restricted; (optional) MFA requirement for IAM writes.
+
+- **Config + Conformance Pack**: rules evaluating and reporting.
+
+---
+- **Security Notes**
+---
+    - Remote state encrypted (KMS) + DynamoDB locking
+
+    - SCPs prevent disabling CloudTrail/Config/GuardDuty/Security Hub
+
+    - All logs encrypted (SSE-KMS) and versioned
+
+    - Plans fail fast on tfsec/Checkov/OPA violations
+
+
+---
+
+## Audit Checklist
+
+Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-checklist.md)
+
+
+| Step | Area                         | Controls Verified                          | Evidence |
+|------|------------------------------|--------------------------------------------|----------|
+| 1    | Remote State (S3 + DynamoDB) | SSE-KMS, versioning, state locking          | [View](docs/audit-checklist.md#step-1--remote-state-s3--dynamodb) |
+| 2    | Centralized Logging          | Org-wide CloudTrail, encrypted log bucket   | [View](docs/audit-checklist.md#step-2--centralized-logging) |
+| 3    | Config & Conformance Packs   | Config recorder + conformance pack          | [View](docs/audit-checklist.md#step-3--aws-config--conformance-packs) |
+| 4    | Security Hub & GuardDuty     | Standards enabled, Org aggregation          | [View](docs/audit-checklist.md#step-4--security-hub--guardduty) |
+| 5    | Policy-as-Code               | tfsec, Checkov, OPA evaluation              | [View](docs/audit-checklist.md#step-5--policy-as-code-oparego-tfsec-checkov) |
+| 6    | Organizations & SCPs         | OU structure, Region/Service guardrails     | [View](docs/audit-checklist.md#step-6--aws-organizations--scps) |
+
+
+---
+
 ## 📑 Compliance Mapping
 
-See [Compliance Mapping Index](docs/compliance-index.md) for full coverage across **ISO/IEC 27001 (2013 & 2022)**, **CIS AWS Foundations**, **Saudi NCA ECC**, and **UAE NESA IAS**.
+| AWS Control         | AWS Service       | ISO 27001:2022 | NCA ECC | NESA IAS |
+|---------------------|------------------|----------------|---------|----------|
+| Centralized logging | CloudTrail + KMS | 8.15 Logging   | LGM-02  | MON-01   |
+| Encryption at rest  | KMS CMKs         | 8.24 Crypto    | CRY-01  | CRY-05   |
+| Access control      | IAM MFA + SCPs   | 5.18 Privileged access rights | IAM-03 | ACC-02 |
+
+📄 Full mapping → [docs/compliance-index.md](docs/compliance-index.md)
 
 ---
 
-## ISO/IEC 27001 Annex A — Control Mapping (2013 → 2022)
-
-This document shows how the **2013 Annex A controls** map into the **2022 revision**.
-It demonstrates awareness of both versions — useful since many organizations are still transitioning.
-
-
----
-
-## Step 1 — State Backend (S3 + DynamoDB)
-
-| Implementation Example | 2013 Control (old numbering) | 2022 Control (new numbering) |
-|-------------------------|------------------------------|------------------------------|
-| S3 backend with SSE-KMS | A.8.20 Use of cryptography | 8.24 Use of cryptography |
-| Remote state segregation (multi-account, Org) | A.8.23 Information security in cloud services | 5.23 Information security for use of cloud services |
-| DynamoDB state locking (Terraform state protection) | A.8.16 Access control | 5.15 Access control |
-
-
----
-
-## Step 2 — Centralized Logging
-
-| Implementation Example | 2013 Control | 2022 Control |
-|-------------------------|--------------|--------------|
-| CloudTrail & CloudWatch logging | A.12.4 Logging and monitoring | 8.15 Logging |
-| CMK for encryption (KMS) | A.8.20 Use of cryptography | 8.24 Use of cryptography |
-| Block Public Access, TLS-only | A.8.24 Data leakage prevention | 8.12 Data leakage prevention |
-| Log file validation, versioned bucket | A.8.16 Monitoring activities | 8.16 Monitoring activities |
-
-
----
-
-## Step 3 — AWS Config & Conformance Packs
-
-| Implementation Example | 2013 Control | 2022 Control |
-|-------------------------|--------------|--------------|
-| AWS Config rules baseline | A.12.1 Security requirements of IS | 5.14 Information security requirements for information systems |
-| Conformance pack compliance checks | A.18.2.2 Compliance with security policies & standards | 5.36 Compliance with policies, rules and standards for information security |
-| Continuous compliance evaluation | A.12.7 Information systems audit considerations | 5.35 Independent review of information security |
-| Resource compliance monitoring | A.8.16 Monitoring activities | 8.16 Monitoring activities |
-
-
----
-
-## Step 4 — Security Hub, GuardDuty & Policy-as-Code
-
-| Implementation Example | 2013 Control | 2022 Control |
-|-------------------------|--------------|--------------|
-| Security Hub findings aggregation | A.12.4 Logging & monitoring | 8.15 Logging |
-| GuardDuty threat detection | A.12.6 Technical vulnerability management | 8.8 Management of technical vulnerabilities |
-| Incident dashboard & response | A.16.1 Information security incident management | 5.25 Response to information security incidents |
-| GuardDuty anomalous network alerts | A.13.1 Network security management | 8.20 Network security |
-| Policy-as-Code enforcement in CI/CD | A.14.2 Security in development and support processes | 8.28 Secure coding |
-| Security Hub standards (shared responsibility) | A.15.1 Information security in supplier relationships | 5.22 Information security in supplier relationships |
-
----
-## Step 5 — OPA Policy-as-Code (Terraform Plan Evaluation)
-
-| Implementation Example | 2013 Control (old numbering) | 2022 Control (new numbering) |
-|-------------------------|-------------------------------|-------------------------------|
-| GuardDuty enforcement via OPA (deny if missing) | A.12.6 Technical vulnerability management | 8.8 Management of technical vulnerabilities |
-| Security Hub enforcement via OPA (deny if missing) | A.12.4 Logging & monitoring | 8.15 Logging |
-| CIS/AFSBP standards subscription required | A.18.2.2 Compliance with security policies & standards | 5.36 Compliance with policies, rules and standards for information security |
-| IAM principals must have permission boundaries | A.9.2.3 Management of privileged access rights | 5.18 Privileged access rights |
-| S3 encryption required (SSE-KMS) | A.8.20 Use of cryptography | 8.24 Use of cryptography |
-| Policy-as-Code unit tests (`opa test`) validate rules | A.12.1.2 Change management | 5.14 Information security requirements for information systems |
-| GitHub Actions runs `opa test` in CI (portfolio mode) | A.18.2.3 Technical compliance review | 5.35 Independent review of information security |
-
----
-
-## Step 6 — AWS Organizations & SCPs (Preventive Guardrails)
-
-| Implementation Example | 2013 Control (old numbering) | 2022 Control (new numbering) |
-|-------------------------|------------------------------|------------------------------|
-| Deny leaving the organization (DenyLeaveOrg SCP) | A.6.1.1 Information security roles & responsibilities | 5.2 Information security roles and responsibilities |
-| Protect Security Services (deny disabling CloudTrail, Config, GuardDuty, Security Hub) | A.12.4 Logging & monitoring | 8.15 Logging |
-| Restrict use of non-approved AWS regions | A.9.1.2 Access to networks and network services | 5.12 Classification and handling of information |
-| Require MFA for IAM write actions (toggle) | A.9.2.3 Management of privileged access rights | 5.18 Privileged access rights |
-| Deny all for root account (toggle, break-glass only) | A.9.2.1 User registration and de-registration | 5.17 Identity management |
-| Organization-wide governance with SCPs | A.5.1.1 Policies for information security | 5.1 Policies for information security |
-| Terraform-managed multi-account OUs and policies | A.12.1.2 Change management | 5.14 Information security requirements for information systems |
-
-
-
-📄 Full mappings:
-- [docs/iso27001-mapping.md](docs/iso27001-mapping.md)
-- [docs/cis-controls-coverage.md](docs/cis-controls-coverage.md)
-- [docs/nca-ecc-mapping.md](docs/nca-ecc-mapping.md)
-- [docs/nesa-mapping.md](docs/nesa-mapping.md)
+## Architecture Diagram
+`docs/architecture-diagram.png`
 
 
 ---
@@ -124,14 +170,7 @@ It demonstrates awareness of both versions — useful since many organizations a
 ---
 
 
-### Architecture Diagram
-`docs/architecture-diagram.png`
-
-
----
-
-
-### Project Structure
+## Project Structure
 
 ```
 
@@ -153,391 +192,331 @@ tw-aws-secure-baseline/
 
 
 ---
-<br>
 
-# Step 1 — Remote State Backend
-- **S3 bucket (SSE-KMS, versioning enabled)** for Terraform state storage
-- **DynamoDB table** for state locking and consistency
 
+## Detailed Steps & Evidence
+
+
+## Step 1 — Remote State Backend (Detailed Evidence)
+
+## What this proves
+- I can design a **secure Terraform backend** that enforces centralized state storage, locking, encryption, and auditability.
+- Ensures **integrity of Infrastructure-as-Code** and meets ISO/NCA requirements for secure configuration.
 
 ---
 
 ### Screenshots
 
-| Step | Screenshot |
+| Proof | Screenshot |
 |------|------------|
 | ✅ S3 Backend Bucket (SSE-KMS + Versioning) | ![S3 Backend](docs/screenshots/step1/state-s3-backend.png) |
 | ✅ DynamoDB Table for State Locking | ![DynamoDB State Lock](docs/screenshots/step1/state-dynamodb.png) |
 
-
 ---
 
 ### Security Highlights
-
-- **Centralized remote state** → Terraform state stored in secure S3 bucket.
-- **Integrity & consistency** → DynamoDB table prevents concurrent state changes.
-- **Encrypted at rest** → Backend bucket encrypted with AWS KMS CMK.
-- **Versioning enabled** → Rollback and tamper detection for state files.
-- **Least privilege IAM** → Access to state backend scoped to pipeline role only.
-
----
-
-### ISO/IEC 27001 Annex A Mapping
-
-- **A.8.20 Use of cryptography** → State backend encrypted with KMS.
-- **A.12.4 Logging & monitoring** → State versioning supports auditability.
-- **A.5.23 Cloud security** → Enforced remote backend instead of local state.
-- **A.8.16 Identity & access control** → IAM policies restrict access to state bucket/DDB.
+- Centralized **remote state** in S3
+- DynamoDB lock prevents concurrent changes
+- **Encrypted at rest** (KMS CMK)
+- Versioning enabled → rollback + tamper detection
+- IAM least-privilege access to backend
 
 ---
 
-### Saudi Arabia- NCA ECC (Essential Cybersecurity Controls) Mapping
-
-- **ECC-1.2 Data Protection at Rest** → S3 backend encryption with KMS.
-- **ECC-1.6 Secure Configuration Management** → Remote state ensures centralized control.
-- **ECC-5.1 Access Control** → Scoped IAM policies on state bucket and DDB.
-- **ECC-6.2 Audit Logging** → Versioning provides history of changes.
+### Compliance Mapping
+- **ISO/IEC 27001**: A.8.20 / 8.24 (cryptography), A.12.4 / 8.15 (logging), A.5.23 / 5.23 (cloud services), A.8.16 / 5.15 (access control)
+- **Saudi NCA ECC**: ECC-1.2 (encryption), ECC-1.6 (config mgmt), ECC-5.1 (access control), ECC-6.2 (audit logging)
 
 ---
-<br>
 
-# Step 2 — Centralized Logging
-- **CloudTrail (multi-region, global events, log file validation)**
-- **S3 log bucket** (versioned, SSE-KMS CMK, Block Public Access, TLS-only policy)
-- **CloudWatch Logs group** (KMS-encrypted, retention 365 days)
+## Step 2 — Centralized Logging (Detailed Evidence)
 
+## What this proves
+- I can enforce **organization-wide audit trails** with CloudTrail and secure log storage.
+- Logs are **tamper-proof, encrypted, and immutable** — meeting compliance and forensics needs.
 
 ---
 
 ### Screenshots
 
-| Step | Screenshot |
+| Proof | Screenshot |
 |------|------------|
 | ✅ KMS CMK Created (Rotation Enabled) | ![KMS Key](docs/screenshots/step2/kms-key.png) |
 | ✅ Log Bucket Encryption (SSE-KMS) | ![S3 Encryption](docs/screenshots/step2/s3-encryption.png) |
 | ✅ S3 Block Public Access ON | ![S3 BPA](docs/screenshots/step2/s3-bpa.png) |
-| ✅ Log Bucket Policy (TLS-only + enforce KMS) | ![S3 Policy](docs/screenshots/step2/s3-policy.png) |
-| ✅ CloudTrail Settings (Multi-Region, Validation, KMS) | ![CloudTrail Settings](docs/screenshots/step2/cloudtrail-settings.png) |
-| ✅ CloudTrail Log Files in S3 (Proof) | ![CloudTrail S3 Objects](docs/screenshots/step2/cloudtrail-s3-objects.png) |
+| ✅ TLS-only Bucket Policy | ![S3 Policy](docs/screenshots/step2/s3-policy.png) |
+| ✅ CloudTrail Multi-Region Enabled | ![CloudTrail Settings](docs/screenshots/step2/cloudtrail-settings.png) |
+| ✅ CloudTrail Logs in S3 | ![CloudTrail S3 Objects](docs/screenshots/step2/cloudtrail-s3-objects.png) |
 
 ---
 
 ### Security Highlights
-
-- **Organization-wide audit trail** → CloudTrail multi-region enabled.
-- **Tamper-proof logging** → Log file validation + SSE-KMS encryption.
-- **Centralized evidence storage** → S3 log bucket with versioning and lifecycle.
-- **Defense in depth** → TLS-only bucket policy and enforced KMS key usage.
-- **Default deny** → Block Public Access prevents accidental exposure.
-
+- Org-wide CloudTrail (multi-region, global events)
+- **Tamper-proof logs** (validation, SSE-KMS)
+- S3 bucket with versioning + lifecycle mgmt
+- TLS-only + Block Public Access enforced
+- CloudWatch Logs KMS-encrypted
 
 ---
 
-### ISO/IEC 27001 Annex A Mapping
-
-- **A.12.4 Logging & monitoring** → CloudTrail captures all management events.
-- **A.8.20 Use of cryptography** → Logs encrypted with KMS CMK.
-- **A.8.24 Data leakage prevention** → TLS-only + BPA policies on log bucket.
-- **A.5.23 Cloud security** → Centralized, immutable audit logs.
-- **A.8.16 Identity & access control** → Access scoped by IAM & bucket policies.
-
+### Compliance Mapping
+- **ISO/IEC 27001**: A.12.4 / 8.15 (logging), A.8.20 / 8.24 (cryptography), A.8.24 / 8.12 (DLP)
+- **Saudi NCA ECC**: ECC-1.2 (data at rest), ECC-1.3 (data in transit), ECC-3.1 (logging), ECC-3.2 (log protection), ECC-5.1 (access control)
 
 ---
 
-### Saudi Arabia - NCA ECC (Essential Cybersecurity Controls) Mapping
-
-- **ECC-1.2 Data Protection at Rest** → CloudTrail logs encrypted with KMS.
-- **ECC-1.3 Data Protection in Transit** → TLS-only bucket policy.
-- **ECC-3.1 Security Logging** → Multi-region CloudTrail with validation.
-- **ECC-3.2 Log Protection** → S3 versioning + lifecycle + KMS key rotation.
-- **ECC-5.1 Access Control** → Bucket policies restrict access to CloudTrail + account root.
-
----
-<br>
-
-# Step 3 — AWS Config + Conformance Pack
-
-This step extends the secure baseline with **continuous compliance monitoring**.
-We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.
-
----
+## Step 3 — AWS Config + Conformance Pack (Detailed Evidence)
 
 ## What this proves
-
-I can design and document an environment that not only enables secure logging (Step 2) but also **monitors compliance continuously** across accounts and regions.
-This provides evidence for **security governance** and **cloud compliance frameworks** (ISO 27001, NCA ECC, UAE NESA).
+- I can implement **continuous compliance monitoring** across accounts.
+- Config + Conformance Packs enforce baselines for encryption, logging, and IAM security.
 
 ---
 
 ### Screenshots
 
-| Step | Screenshot |
+| Proof | Screenshot |
 |------|------------|
-| ✅ Config Recorder Enabled | ![cli_recorders](docs/screenshots/step3/cli_recorders.png) |
-| ✅ Delivery Channel Created | ![cli_delivery_channels](docs/screenshots/step3/cli_delivery_channels.png) |
-| ✅ Config Settings (record all resources + include global types) | ![config_settings](docs/screenshots/step3/config_settings.png) |
-| ✅ Config Rules Evaluations | ![config_rules](docs/screenshots/step3/config_rules.png) |
-| ✅ Conformance Pack (starter-dev, Create complete) | ![conformance_pack](docs/screenshots/step3/conformance_pack.png) |
-| ✅ Conformance Pack via CLI | ![cli_conformance_pack](docs/screenshots/step3/cli_conformance_pack.png) |
-| ✅ S3 Delivery Bucket (AWSLogs/<acct>/Config/) | ![s3_config_delivery](docs/screenshots/step3/s3_config_delivery.png) |
-| ✅ S3 Conformance Artifacts Bucket (artifacts/AWSLogs/<acct>/Config/) | ![s3_conformance_artifacts](docs/screenshots/step3/s3_conformance_artifacts.png) |
+| ✅ Config Recorder Enabled | ![Config Recorder](docs/screenshots/step3/cli_recorders.png) |
+| ✅ Delivery Channel Created | ![Delivery Channel](docs/screenshots/step3/cli_delivery_channels.png) |
+| ✅ Config Settings | ![Config Settings](docs/screenshots/step3/config_settings.png) |
+| ✅ Config Rules Evaluations | ![Config Rules](docs/screenshots/step3/config_rules.png) |
+| ✅ Conformance Pack Deployed | ![Conformance Pack](docs/screenshots/step3/conformance_pack.png) |
+| ✅ Conformance Pack via CLI | ![CP CLI](docs/screenshots/step3/cli_conformance_pack.png) |
 
 ---
 
-## Security Highlights
-
-- **AWS Config Recorder**: captures configuration changes for all supported resources, including global types.
-- **Centralized Delivery Buckets**:
-  - `baseline-config-delivery-<acct>-<region>` → stores configuration history & snapshots.
-  - `awsconfigconforms-...` → stores Conformance Pack artifacts.
-- **Service-Linked Roles**: ensure AWS Config + Conformance Packs can deliver securely with least privilege.
-- **Conformance Pack (starter)**: 11 rules enforcing security baselines:
-  - IAM password policy (≥14 chars)
-  - Root account MFA enabled
-  - Access keys rotated (≤90 days)
-  - CloudTrail enabled
-  - VPC Flow Logs enabled
-  - EBS encryption by default
-  - Attached volumes encrypted
-  - RDS storage encrypted
-  - S3 public read prohibited
-  - S3 public write prohibited
-  - S3 server-side encryption enabled
-
----
-
-## Compliance Mapping
-
-**ISO/IEC 27001:2013 (Annex A)**
-
-| Control | Description | Implementation Evidence |
-|---------|-------------|--------------------------|
-| **A.12.4** | Logging and monitoring | Config records all resource changes; Conformance Pack enforces logging standards (CloudTrail, VPC Flow Logs). |
-| **A.8.20** | Use of cryptography | Rules check for encryption at rest (EBS, RDS, S3 SSE). |
-| **A.8.23** | Information security in cloud services | Continuous monitoring of cloud resources and policies. |
-| **A.8.16** | Monitoring activities | Config continuously evaluates compliance against rules. |
-| **A.18.2.3** | Technical compliance review | Conformance Pack provides automated compliance assessment. |
-
----
-
-**Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)**
-
-| Domain | Control | Implementation Evidence |
-|--------|---------|--------------------------|
-| **OAM-06** | Configuration management | AWS Config records and evaluates all resource changes. |
-| **OAM-08** | Security baselines | Conformance Pack rules enforce baselines for encryption, logging, and access controls. |
-| **DPS-01** | Data protection (encryption) | Rules require EBS, RDS, and S3 encryption. |
-| **LMP-04** | Log management | Rules ensure CloudTrail and VPC Flow Logs are enabled and delivered securely. |
-| **IAM-03** | Identity hardening | Rules enforce IAM password policies, MFA on root, and key rotation. |
-
----
-
-**UAE — NESA / IAS Compliance**
-
-| Domain | Requirement | Implementation Evidence |
-|--------|-------------|--------------------------|
-| **Information Systems Security** | Secure configuration baseline | AWS Config monitors drifts and applies baseline rules. |
-| **Data Protection** | Encryption of sensitive data | Rules enforce S3, RDS, and EBS encryption. |
-| **Audit & Accountability** | Logging of security events | CloudTrail & VPC Flow Log checks ensure audit trails. |
-| **Access Control** | Credential hygiene | Rules require password complexity, MFA, and key rotation. |
-| **Monitoring & Compliance** | Continuous assurance | Conformance Pack provides real-time compliance posture. |
-
----
-
-<br>
-
-# Step 4 — Security Services (CSPM + Threat Detection)
-
-This step enables **AWS native CSPM and threat detection** services:
-
-- **Security Hub** with CIS AWS Foundations (v1.4.0) and AWS Foundational Security Best Practices (v1.0.0) standards.
-- **GuardDuty** detector with **S3 Protection** and **EC2 Malware Protection (EBS volumes)** enabled.
-- Policy-as-Code (OPA/Rego) rules enforce that Security Hub and GuardDuty **must be enabled** in every Terraform plan.
-
----
-
-### Security Highlights (Terraform)
-- `aws_securityhub_account` turns on Security Hub (CSPM engine).
-- `aws_securityhub_standards_subscription` attaches CIS + AFSBP standards.
-- `aws_guardduty_detector` enables GuardDuty with required datasources.
-- Variables exposed for version pinning (so you can adjust CIS/AFSBP versions easily).
-- Tags applied consistently for audit & compliance.
-
----
-
-###  Policy-as-Code (OPA/Rego)
-OPA rules under `policies-as-code/opa/rules/require-security-services.rego`:
-- Deny if Security Hub is missing.
-- Deny if GuardDuty is missing/disabled.
-- Deny if GuardDuty S3 protection or Malware Protection is off.
-- Deny if CIS or AFSBP standards not subscribed.
-
-OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
-
----
-
-### Screenshots
-
-| Proof | Screenshot |
-|-------|------------|
-| ✅ Security Hub summary (enabled) | ![Security Hub Summary](docs/screenshots/step4/security-hub-summary.png) |
-| ✅ CIS standard enabled (v1.4.0) | ![CIS Standard](docs/screenshots/step4/security-hub-standards-cis.png) |
-| ✅ AFSBP standard enabled (v1.0.0) | ![AFSBP Standard](docs/screenshots/step4/security-hub-standards-afsbp.png) |
-| ✅ GuardDuty detector ON (with S3 + Malware Protection) | ![GuardDuty Settings](docs/screenshots/step4/guardduty-settings.png) |
-| ✅ OPA gate denial (Security Hub missing test) | ![OPA Deny](docs/screenshots/step4/opa-require-securityhub-deny.png) |
+### Security Highlights
+- Recorder tracks **all resource changes**
+- Centralized delivery buckets for evidence
+- Service-linked roles for least-privilege
+- Conformance Pack with 11 security baseline rules (passwords, MFA, encryption, logs)
 
 ---
 
 ### Compliance Mapping
-
-- **ISO/IEC 27001 (Annex A)**
-  - A.12.4 Logging & monitoring → continuous posture findings.
-  - A.5.23 Cloud security (monitoring & detection).
-
-- **CIS AWS Foundations**
-  - Directly enforced via Security Hub CIS standard.
-
-- **Regional**
-  - **Saudi NCA ECC**: D5.5 Threat detection (GuardDuty), D1/D2 Logging + config compliance.
-  - **UAE NESA/IAS**: Security Monitoring, Threat/Vulnerability Management, Governance.
-
-
----
-<br>
-
-# Step 5 — Policy-as-Code (OPA / Rego)
-
-This step integrates **Policy-as-Code (PaC)** into the secure baseline using **Open Policy Agent (OPA)** and Rego rules.
-Terraform plans are evaluated against mandatory guardrails before apply, ensuring that misconfigurations such as missing Security Hub or GuardDuty detectors are automatically denied.
-This enforces **continuous compliance** and prevents insecure infrastructure from being provisioned.
-
-In addition, I configured a lightweight **CI workflow (`plan.yml`)** that automatically runs `terraform validate`, `tfsec`, `Checkov`, and `opa test` on every commit in **portfolio mode** (no AWS writes).
-A **green CI badge** is displayed at the top of the repository to demonstrate awareness of modern DevSecOps practices and provide a quick visual indicator of pipeline health.
-
+- **ISO/IEC 27001**: A.12.4 / 8.15 (logging), A.8.20 / 8.24 (crypto), A.8.23 / 5.23 (cloud services), A.18.2.3 / 5.35 (compliance review)
+- **Saudi NCA ECC**: OAM-06 (config mgmt), OAM-08 (baselines), DPS-01 (encryption), LMP-04 (logs), IAM-03 (identity hardening)
+- **UAE NESA IAS**: Secure baseline, data protection, audit & accountability, credential hygiene, monitoring & compliance
 
 ---
 
-### Terraform & OPA Highlights
-
-- **OPA policies** under `policies-as-code/opa/rules/` enforce:
-  - Deny if **GuardDuty detector** is missing or disabled.
-  - Deny if **Security Hub account** is not enabled.
-  - Deny if **Security Hub standards (CIS / AFSBP)** are not subscribed.
-  - Deny if **IAM principals** are missing permission boundaries.
-  - Deny if **S3 buckets** are not encrypted with SSE.
-- **OPA unit tests** under `policies-as-code/opa/tests/` validate all Rego rules (`opa test`).
-- **OPA eval** runs on Terraform plan JSON to show clear violation messages.
-- **CI pipeline** (`.github/workflows/plan.yml`) runs Terraform + tfsec + Checkov + OPA checks.
-- **CI badge** in README shows passing status (green), adding a visible compliance “edge.”
-
----
-
-
-### Compliance Mapping
-
-- **ISO/IEC 27001 (Annex A)**
-  - A.12.1.2 Change management → security enforced at plan stage.
-  - A.12.4 Logging & monitoring → continuous compliance validation.
-  - A.18.2.3 Technical compliance review → automated checks using OPA.
-
-
-- **CIS AWS Foundations**
-  - Enforced through Security Hub CIS benchmark subscription.
-
-
-- **Regional**
-  - **Saudi NCA ECC**: D5.5 Threat detection (GuardDuty), D1/D2 Logging & compliance monitoring, CC-06 Compliance checks.
-  - **UAE NESA/IAS**: Security Monitoring, Threat & Vulnerability Management, Compliance & Audit governance.
-
-
----
-
-### Screenshots
-
-| Proof | Screenshot |
-|-------|------------|
-| ❌ OPA eval failure when GuardDuty is missing | ![Fail: GuardDuty not enabled](docs/screenshots/step5/opa_eval_fail_missing_guardduty.png) |
-| ❌ OPA eval failure when Security Hub is missing | ![Fail: Security Hub not enabled](docs/screenshots/step5/opa_eval_fail_missing_securityhub.png) |
-| ✅ OPA unit tests (10/10 pass) | ![OPA unit tests](docs/screenshots/step5/opa_test_pass.png) |
-| ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/step5/opa_eval_pass.png) |
-| ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/step5/ci-badge-step5.png) |
-| ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/step5/ci-run-step5.png) |
----
-
-<br>
-
-# Step 6 — AWS Organizations & Service Control Policies (SCPs)
-
-
-This step introduces **AWS Organizations** and **Service Control Policies (SCPs)** to enforce **preventive guardrails** across all accounts in the organization. Unlike detective controls (Config rules, Security Hub) or reactive monitoring (CloudTrail/GuardDuty), SCPs ensure that certain risky or non-compliant actions cannot even be attempted.
-
----
+## Step 4 — Security Services (CSPM + Threat Detection) (Detailed Evidence)
 
 ## What this proves
-
-- I can design and deploy **multi-account guardrails** at the **organization root level**.
-- I can **restrict regions** so workloads only run in approved geographies (e.g., `us-east-1`).
-- I can **protect critical security services** (CloudTrail, Config, GuardDuty, Security Hub) from being disabled or tampered with.
-- I can **enforce least privilege** across accounts using SCPs that apply consistently to OUs or the root.
-- I can demonstrate the **preventive control layer** required by ISO 27001 and regional frameworks (Saudi NCA ECC, UAE NESA IAS).
-- Terraform module design: enabled toggles (`enable_protect_security_services`, `enable_require_mfa_iam`, `enable_deny_root_user`) show awareness of safe defaults and controlled “flip points” for stricter guardrails later.
-
+- I can enable **native AWS CSPM and threat detection** tools.
+- Security Hub and GuardDuty enforce continuous monitoring and incident detection.
 
 ---
 
-## Screenshots
+### Screenshots
 
 | Proof | Screenshot |
 |-------|------------|
-| ✅ Organization **All features enabled** | ![org-settings-all-features](docs/screenshots/step6/org-settings-all-features.png) |
-| ✅ Root has **SCPs attached** | ![org-root-attached-scps](docs/screenshots/step6/org-root-attached-scps.png) |
-| ✅ OUs created (`infra`, `sandbox`, `security`, `workloads`) | ![org-ous-list](docs/screenshots/step6/org-ous-list.png) |
-| ✅ Protect Security Services policy (JSON deny for CloudTrail, Config, GuardDuty, Security Hub) | ![scp-protectsecurityservices-json](docs/screenshots/step6/scp-protectsecurityservices-json.png) |
-| ✅ Restrict Regions policy (JSON deny with `aws:RequestedRegion` condition) | ![scp-restrict-regions-json](docs/screenshots/step6/scp-restrict-regions-json.png) |
-| ✅ Terraform outputs showing Org ID, Root ID, OU IDs, Policy ARNs | ![tf-module-outputs](docs/screenshots/step6/tf-module-outputs.png) |
-
+| ✅ Security Hub Summary | ![Security Hub Summary](docs/screenshots/step4/security-hub-summary.png) |
+| ✅ CIS Standard Enabled | ![CIS Standard](docs/screenshots/step4/security-hub-standards-cis.png) |
+| ✅ AFSBP Standard Enabled | ![AFSBP Standard](docs/screenshots/step4/security-hub-standards-afsbp.png) |
+| ✅ GuardDuty Detector ON | ![GuardDuty Settings](docs/screenshots/step4/guardduty-settings.png) |
+| ✅ OPA Deny if Security Hub Missing | ![OPA Deny](docs/screenshots/step4/opa-require-securityhub-deny.png) |
 
 ---
 
-## Compliance Mapping
-
-- **ISO/IEC 27001:2013 (Annex A)**-
-
-  - A.5.1.1 Policies for information security → Organization-wide SCPs establish mandatory security rules.
-  - A.9.1.2 Access to networks and network services → RestrictRegions SCP enforces approved geographies.
-  - A.12.1.2 Change management → Preventive guardrails stop unauthorized configuration changes (e.g., disabling CloudTrail).
-  - A.12.4 Logging & monitoring → SCPs enforce continuous logging by denying stop/delete of CloudTrail, Config, GuardDuty, Security Hub.
-  - A.18.2.3 Technical compliance review → Guardrails act as a compliance baseline, preventing violations before they occur.
-
-
-- **CIS AWS Foundations**-
-
-  - 1.1 Ensure CloudTrail is enabled in all regions → Protected by `ProtectSecurityServices` SCP.
-  - 1.2 Ensure no unauthorized regions are used → `RestrictRegions` SCP enforces this.
-  - 1.5 Ensure configuration changes are logged and monitored → Config recorder cannot be disabled.
-
-
-- **Saudi Arabia — NCA Essential Cybersecurity Controls (ECC)**-
-
-  - D5.2 Identity and Access Management → Require MFA for IAM (toggle, can be enforced later).
-  - D5.5 Threat detection → GuardDuty cannot be disabled
-  - D1/D2 Logging & monitoring → CloudTrail/Config cannot be disabled.
-  - CC-06 Compliance checks → SCPs enforce baseline governance across all accounts.
-
-
-- **UAE — NESA / IAS Compliance**-
-
-  - Security Monitoring & Governance → CloudTrail/Config logs enforced at org level.
-  - Threat & Vulnerability Management → GuardDuty enforced.
-  - Compliance & Audit Governance → SCPs provide preventive assurance that policies are followed across the enterprise.
-
+### Security Highlights
+- Security Hub enabled org-wide with **CIS + AFSBP standards**
+- GuardDuty with **S3 + Malware Protection**
+- OPA rules enforce mandatory services
+- Standards version-pinned for audit traceability
 
 ---
 
+### Compliance Mapping
+- **ISO/IEC 27001**: A.12.4 / 8.15 (logging & monitoring), A.5.23 (cloud monitoring)
+- **CIS AWS Foundations**: Benchmarks enforced via Security Hub
+- **Regional**: NCA ECC D5.5 (threat detection), NESA IAS (monitoring & governance)
 
-## Highlights
+---
 
-- **Preventive guardrails** complement detective controls (Config rules, Security Hub).
-- **Terraform modular design** with toggles allows gradual enforcement (safe defaults now, stricter later).
-- **Cloud Security Architecture maturity** → Moving from single-account security to **multi-account governance** at the organizational level.
-- **Auditable proof**: Both Terraform outputs and AWS Console screenshots show SCPs applied and effective.
+## Step 5 — Policy-as-Code (OPA/Rego) (Detailed Evidence)
+
+## What this proves
+- I can integrate **Policy-as-Code** in Terraform pipelines to deny insecure plans before apply.
+- CI/CD enforces security continuously.
+
+---
+
+### Screenshots
+
+| Proof | Screenshot |
+|-------|------------|
+| ❌ OPA eval fail (GuardDuty missing) | ![OPA Fail GD](docs/screenshots/step5/opa_eval_fail_missing_guardduty.png) |
+| ❌ OPA eval fail (Security Hub missing) | ![OPA Fail SH](docs/screenshots/step5/opa_eval_fail_missing_securityhub.png) |
+| ✅ OPA unit tests pass | ![OPA Tests](docs/screenshots/step5/opa_test_pass.png) |
+| ✅ OPA eval pass (all checks) | ![OPA Pass](docs/screenshots/step5/opa_eval_pass.png) |
+| ✅ CI Badge Green | ![CI Badge](docs/screenshots/step5/ci-badge-step5.png) |
+
+---
+
+### Security Highlights
+- OPA rules for GuardDuty, Security Hub, IAM boundaries, S3 encryption
+- Unit tests validate all rules (`opa test`)
+- Terraform plan gated by OPA + tfsec + Checkov
+- GitHub Actions pipeline with visible badge
+
+---
+
+### Compliance Mapping
+- **ISO/IEC 27001**: A.12.1.2 / 5.14 (change mgmt), A.18.2.3 / 5.35 (compliance review)
+- **CIS AWS Foundations**: enforced via Hub CIS subscription
+- **Regional**: NCA ECC (logging + compliance), NESA IAS (audit governance)
+
+---
+
+## Step 6 — AWS Organizations & SCPs (Detailed Evidence)
+
+## What this proves
+- I can enforce **preventive guardrails** at the organization level.
+- SCPs ensure risky actions (like disabling CloudTrail or using unapproved regions) can’t even be attempted.
+
+---
+
+### Screenshots
+
+| Proof | Screenshot |
+|-------|------------|
+| ✅ Org All Features Enabled | ![Org Features](docs/screenshots/step6/org-settings-all-features.png) |
+| ✅ Root with SCPs Attached | ![Root SCP](docs/screenshots/step6/org-root-attached-scps.png) |
+| ✅ OUs Created | ![OUs](docs/screenshots/step6/org-ous-list.png) |
+| ✅ Protect Security Services SCP | ![Protect SCP](docs/screenshots/step6/scp-protectsecurityservices-json.png) |
+| ✅ Restrict Regions SCP | ![Regions SCP](docs/screenshots/step6/scp-restrict-regions-json.png) |
+| ✅ Terraform Outputs | ![TF Outputs](docs/screenshots/step6/tf-module-outputs.png) |
+
+---
+
+### Security Highlights
+- SCPs protect CloudTrail/Config/GuardDuty/Security Hub
+- Restrict regions → enforce geo boundaries
+- Optional toggles for **Require MFA** and **Deny Root**
+- Terraform modular design for gradual enforcement
+
+---
+
+### Compliance Mapping
+- **ISO/IEC 27001**: A.5.1.1 / 5.1 (policies), A.12.1.2 / 5.14 (change mgmt), A.12.4 / 8.15 (logging enforced), A.18.2.3 / 5.35 (compliance)
+- **CIS AWS Foundations**: 1.1 CloudTrail all regions, 1.2 approved regions only, 1.5 config logging
+- **Saudi NCA ECC**: D5.2 (IAM MFA), D5.5 (threat detection), D1/D2 (logging), CC-06 (compliance checks)
+- **UAE NESA IAS**: Security Monitoring, Threat Mgmt, Compliance Governance
+
+---
+
+## CI/CD & Security Gates
+
+- **GitHub Actions badge** shows current pipeline health.
+- CI runs on PRs and pushes to `main` (adjust as needed).
+- **Gates (fail-fast):** `terraform validate` → `tfsec` → `Checkov` → `opa test` (unit tests) → optional OPA eval on a sample plan.
+
+**Minimal `plan.yml` skeleton:**
+```yaml
+name: terraform-security-checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Terraform Validate
+        run: |
+          cd envs/dev
+          terraform init -backend=false
+          terraform validate
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+
+      - name: OPA unit tests
+        run: |
+          opa version
+          opa test policies-as-code/opa -v
+```
+---
+
+## Inputs & Variables
+
+See [docs/variables.md](docs/variables.md) for the full list of supported inputs and example `terraform.tfvars`.
+
+---
+
+---
+
+## Troubleshooting
+
+**`AWSOrganizationsNotInUseException`**
+- Enable Organizations (**All features**) in the management account before applying Step 6.
+
+---
+
+**Security Hub/GuardDuty aggregator issues**
+- Ensure delegated administrator is set (Security Hub/GuardDuty → Settings).
+- Some org-level APIs require admin designation before enabling standards.
+
+---
+
+**OPA/Rego errors (v1 syntax)**
+- Use simple set/list comprehensions; avoid deprecated helpers.
+- Run unit tests locally:
+  ```bash
+  opa test policies-as-code/opa -v
+  ```
+- Ensure your opa eval path matches:
+  ```bash
+  opa eval -i plan.json -d policies-as-code/opa "data.terraform.security.deny"
+  ```
+
+---
+
+**plan.json empty or missing**
+
+   ```bash
+  terraform plan -out=tfplan
+  terraform show -json tfplan > plan.json
+  ```
+
+---
+
+**Version mismatches (providers/standards)**
+- Pin providers in providers.tf.
+- Check Security Hub standard IDs (e.g., cis-1.4.0, afsbp-1.0.0) match your region.
+
+---
+
+**tfsec/Checkov missing**
+- Install locally:
+  ```bash
+  brew install tfsec checkov
+  ```
+- Or use the GitHub Actions workflow included in .github/workflows/plan.yml.
+
+---
+
+### Contact
+
+**Email:**:amina.an0806@gmail.com
+
+**LinkedIn**:
+
+**GitHub:**:
