@@ -124,13 +124,33 @@ It demonstrates awareness of both versions — useful since many organizations a
 ---
 
 
-**Architecture Diagram**
+### Architecture Diagram
 `docs/architecture-diagram.png`
 
 
 ---
 
- **Project Structure**
+
+### Project Structure
+
+```
+
+tw-aws-secure-baseline/
+├── modules/                 # Reusable Terraform modules (state, logging, security, network, etc.)
+├── envs/                    # Environment configurations (dev, prod)
+├── policies-as-code/        # OPA/Rego rules, tfsec & Checkov configs
+├── .github/workflows/       # CI/CD pipelines (plan/apply, security checks)
+├── docs/                    # Architecture diagrams, compliance mappings, study notes
+│   ├── diagrams/
+│   ├── screenshots/
+│   └── compliance/
+├── providers.tf             # Terraform providers
+├── variables.tf             # Global variables
+├── outputs.tf               # Global outputs
+└── main.tf                  # Root configuration entrypoint
+
+```
+
 
 ---
 <br>
