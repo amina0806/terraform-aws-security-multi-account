@@ -10,7 +10,11 @@ It includes:
 - Security Hub & GuardDuty as Cloud Security Posture Management (CSPM) tools
 - Policy-as-Code (OPA/Rego) to enforce encryption, IAM boundaries, and security service activation
 
-📑 Compliance Mapping: **ISO/IEC 27001 Annex A (2013 & 2022), Saudi NCA ECC, UAE NESA IAS**
+---
+
+## 📑 Compliance Mapping
+
+See [Compliance Mapping Index](docs/compliance-index.md) for full coverage across **ISO/IEC 27001 (2013 & 2022)**, **CIS AWS Foundations**, **Saudi NCA ECC**, and **UAE NESA IAS**.
 
 ---
 
@@ -129,9 +133,9 @@ It demonstrates awareness of both versions — useful since many organizations a
  **Project Structure**
 
 ---
+<br>
 
-
-## Step 1 — Remote State Backend
+# Step 1 — Remote State Backend
 - **S3 bucket (SSE-KMS, versioning enabled)** for Terraform state storage
 - **DynamoDB table** for state locking and consistency
 
@@ -174,11 +178,10 @@ It demonstrates awareness of both versions — useful since many organizations a
 - **ECC-5.1 Access Control** → Scoped IAM policies on state bucket and DDB.
 - **ECC-6.2 Audit Logging** → Versioning provides history of changes.
 
-<br>
+---
 <br>
 
-
-## Step 2 — Centralized Logging
+# Step 2 — Centralized Logging
 - **CloudTrail (multi-region, global events, log file validation)**
 - **S3 log bucket** (versioned, SSE-KMS CMK, Block Public Access, TLS-only policy)
 - **CloudWatch Logs group** (KMS-encrypted, retention 365 days)
@@ -229,10 +232,10 @@ It demonstrates awareness of both versions — useful since many organizations a
 - **ECC-3.2 Log Protection** → S3 versioning + lifecycle + KMS key rotation.
 - **ECC-5.1 Access Control** → Bucket policies restrict access to CloudTrail + account root.
 
-
 ---
+<br>
 
-## Step 3 — AWS Config + Conformance Pack
+# Step 3 — AWS Config + Conformance Pack
 
 This step extends the secure baseline with **continuous compliance monitoring**.
 We enable **AWS Config** (recorder + delivery channel) and deploy a **starter Conformance Pack** containing 11 AWS-managed rules.
@@ -319,9 +322,11 @@ This provides evidence for **security governance** and **cloud compliance framew
 | **Access Control** | Credential hygiene | Rules require password complexity, MFA, and key rotation. |
 | **Monitoring & Compliance** | Continuous assurance | Conformance Pack provides real-time compliance posture. |
 
-
 ---
-## Step 4 — Security Services (CSPM + Threat Detection)
+
+<br>
+
+# Step 4 — Security Services (CSPM + Threat Detection)
 
 This step enables **AWS native CSPM and threat detection** services:
 
@@ -378,9 +383,9 @@ OPA unit tests in `policies-as-code/opa/tests/` validate these rules.
 
 
 ---
+<br>
 
-
-## Step 5 — Policy-as-Code (OPA / Rego)
+# Step 5 — Policy-as-Code (OPA / Rego)
 
 This step integrates **Policy-as-Code (PaC)** into the secure baseline using **Open Policy Agent (OPA)** and Rego rules.
 Terraform plans are evaluated against mandatory guardrails before apply, ensuring that misconfigurations such as missing Security Hub or GuardDuty detectors are automatically denied.
@@ -437,11 +442,12 @@ A **green CI badge** is displayed at the top of the repository to demonstrate aw
 | ✅ OPA eval pass (all checks satisfied) | ![OPA eval pass](docs/screenshots/step5/opa_eval_pass.png) |
 | ✅ CI badge (green) in README | ![ci-badge-step5](docs/screenshots/step5/ci-badge-step5.png) |
 | ✅ GitHub Actions run (plan.yml) passing all checks | ![ci-run-step5](docs/screenshots/step5/ci-run-step5.png) |
-
 ---
 
+<br>
 
 # Step 6 — AWS Organizations & Service Control Policies (SCPs)
+
 
 This step introduces **AWS Organizations** and **Service Control Policies (SCPs)** to enforce **preventive guardrails** across all accounts in the organization. Unlike detective controls (Config rules, Security Hub) or reactive monitoring (CloudTrail/GuardDuty), SCPs ensure that certain risky or non-compliant actions cannot even be attempted.
 
@@ -449,12 +455,13 @@ This step introduces **AWS Organizations** and **Service Control Policies (SCPs)
 
 ## What this proves
 
-- Design and deploy **multi-account guardrails** at the **organization root level**.
-- **Restrict regions** so workloads only run in approved geographies (e.g., `us-east-1`).
-- **Protect critical security services** (CloudTrail, Config, GuardDuty, Security Hub) from being disabled or tampered with.
-- **Enforce least privilege** across accounts using SCPs that apply consistently to OUs or the root.
-- Demonstrate the **preventive control layer** required by ISO 27001 and regional frameworks (Saudi NCA ECC, UAE NESA IAS).
+- I can design and deploy **multi-account guardrails** at the **organization root level**.
+- I can **restrict regions** so workloads only run in approved geographies (e.g., `us-east-1`).
+- I can **protect critical security services** (CloudTrail, Config, GuardDuty, Security Hub) from being disabled or tampered with.
+- I can **enforce least privilege** across accounts using SCPs that apply consistently to OUs or the root.
+- I can demonstrate the **preventive control layer** required by ISO 27001 and regional frameworks (Saudi NCA ECC, UAE NESA IAS).
 - Terraform module design: enabled toggles (`enable_protect_security_services`, `enable_require_mfa_iam`, `enable_deny_root_user`) show awareness of safe defaults and controlled “flip points” for stricter guardrails later.
+
 
 ---
 
