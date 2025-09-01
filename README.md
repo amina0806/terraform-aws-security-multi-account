@@ -153,6 +153,13 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 ## Architecture Diagram
 `docs/architecture-diagram.png`
 
+**Key Components**
+- AWS Organizations with multiple OUs (security, workloads, infra, sandbox).
+- Service Control Policies (SCPs) to enforce guardrails.
+- Centralized CloudTrail with KMS encryption + log file validation.
+- Organization-wide GuardDuty and Security Hub enabled.
+- IAM hardening: MFA enforcement, permission boundaries, deny root user.
+- Modular Terraform structure with `dev` and `prod` environments.
 
 ---
 ## Project Steps & Locations
@@ -174,7 +181,7 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 
 ```
 
-tw-aws-secure-baseline/
+tf-aws-secure-baseline/
 ├── modules/                 # Reusable Terraform modules (state, logging, security, network, etc.)
 ├── envs/                    # Environment configurations (dev, prod)
 ├── policies-as-code/        # OPA/Rego rules, tfsec & Checkov configs
@@ -513,10 +520,11 @@ See [docs/variables.md](docs/variables.md) for the full list of supported inputs
 
 ---
 
+
 ### Contact
 
-**Email:**:amina.an0806@gmail.com
-
-**LinkedIn**:
-
-**GitHub:**:
+**Amina**
+Cloud Security Engineer | AWS Security Specialty | Governance & Compliance (ISO 27001, NCA ECC, NESA IAS)
+- LinkedIn: [linkedin.com/in/amina0806](#)
+- GitHub: [github.com/amina0806](https://github.com/amina0806)
+- Email: [amina.an0806@gmail.com](mailto:amina.an0806@gmail.com)
