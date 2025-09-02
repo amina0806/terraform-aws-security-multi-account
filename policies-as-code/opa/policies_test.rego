@@ -1,15 +1,13 @@
 package terraform.security
 
 no_violations_for(inp) if {
-	# Build a list from set membership, then count it.
+
 	n := count([x | data.terraform.security.violations[x] with input as inp])
 	n == 0
 }
 
 test_iam_role_missing_boundary_denies if {
 	inp := {"resource_changes": [{"type": "aws_iam_role", "change": {"after": {"name": "r1"}}}]}
-
-	# Assert the exact message is a member of the violations set
 	data.terraform.security.violations["IAM role \"r1\" is missing a permissions boundary."] with input as inp
 }
 

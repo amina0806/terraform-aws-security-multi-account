@@ -5,7 +5,7 @@ variable "ou_names" {
 }
 
 variable "allowed_regions" {
-  description = "Approved AWS regions (restricts all others). Leave as [\"us-east-1\"] for your lab."
+  description = "Approved AWS regions"
   type        = list(string)
   default     = ["us-east-1"]
 }
@@ -23,13 +23,13 @@ variable "enable_protect_security_services" {
 }
 
 variable "enable_require_mfa_iam" {
-  description = "Require MFA for IAM write operations (enable AFTER you use MFA sessions)"
+  description = "Require MFA for IAM write operations"
   type        = bool
   default     = false
 }
 
 variable "enable_deny_root_user" {
-  description = "Deny everything for the root user (DANGEROUS—enable only with break-glass plan)"
+  description = "Deny everything for the root user"
   type        = bool
   default     = false
 }

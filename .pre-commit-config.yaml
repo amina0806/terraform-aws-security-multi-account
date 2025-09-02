@@ -2,18 +2,18 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      # Normalize line endings first
+
       - id: mixed-line-ending
         args: [--fix=lf]
 
-      # Strip trailing spaces (keep Markdown "two-space" linebreaks)
+
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
 
-      # Ensure exactly one newline at EOF
+
       - id: end-of-file-fixer
 
-      # Optional: keep large binaries out of git
+
       - id: check-added-large-files
         args: ["--maxkb=51200"]
 

@@ -1,7 +1,6 @@
 
 # Audit Checklist — AWS Secure Baseline (Terraform + PaC)
 
-This checklist allows managers/auditors to quickly confirm the baseline deployment against required security controls.
 Evidence links point to screenshots and mappings in the repo.
 
 ---

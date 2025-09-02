@@ -12,7 +12,6 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
-# Customer-managed KMS key for S3 state encryption
 resource "aws_kms_key" "state" {
   description         = "CMK for Terraform state encryption"
   enable_key_rotation = true

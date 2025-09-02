@@ -1,10 +1,10 @@
-# ========= Toggle =========
+
 variable "enable_permissions_boundary" {
   type    = bool
   default = false # set true only when you want to create the boundary + sample role
 }
 
-# ========= Module (guarded) =========
+
 module "permissions_boundary" {
   count  = var.enable_permissions_boundary ? 1 : 0
   source = "../../modules/iam/permission-boundary"
@@ -14,13 +14,13 @@ module "permissions_boundary" {
   ]
 }
 
-# Resolve the module output only when enabled
+
 locals {
   permissions_boundary_arn = var.enable_permissions_boundary ? module.permissions_boundary[0].permissions_boundary_arn : null
 }
 
 
-# ========= Example role (guarded) =========
+
 resource "aws_iam_role" "devops" {
   count                = var.enable_permissions_boundary ? 1 : 0
   name                 = "devops-lab-role"
