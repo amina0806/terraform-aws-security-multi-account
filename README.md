@@ -35,7 +35,7 @@ It includes:
 ---
 
 ### Features
-- **AWS Organizations + SCPs**: region restriction, deny root, protect security services, (optional) require MFA for IAM writes.
+- **AWS Organizations + SCPs**: region restriction, deny root, protect security services, require MFA for IAM writes.
 - **Centralized Logging**: CloudTrail (multi-region, validation), KMS-encrypted S3 log bucket, CloudWatch Logs.
 - **Continuous Compliance**: AWS Config + starter Conformance Pack.
 - **CSPM + Threat Detection**: Security Hub (CIS + AFSBP), GuardDuty (S3 Protection + Malware Protection).
