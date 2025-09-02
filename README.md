@@ -151,8 +151,11 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 ---
 
 ## Architecture Diagram
-`docs/architecture-diagram.png`
 
+![Architecture Diagram](docs/architecture-diagram.png)
+
+
+---
 **Key Components**
 - AWS Organizations with multiple OUs (security, workloads, infra, sandbox).
 - Service Control Policies (SCPs) to enforce guardrails.
