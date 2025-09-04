@@ -14,10 +14,10 @@ It includes:
 
 ## Table of Contents
 - [Features](#features)
-- [🛠️ Deployment](#-deployment)
+- [Deployment](#deployment)
 - [Audit Checklist](docs/audit-checklist.md)
-- [📑 Compliance Mapping](#-compliance-mapping)
-- [Architecture](#architecture)
+- [Compliance Mapping](#compliance-mapping)
+- [Architecture](#architecture-diagram)
 - [Project Structure](#project-structure)
 - [Detailed Steps & Evidence](#detailed-steps--evidence)
   - [Step 1 — Remote State Backend (Detailed Evidence)](#step-1--remote-state-backend-detailed-evidence)
@@ -44,7 +44,7 @@ It includes:
 
 ---
 
-## 🛠️ Deployment
+## Deployment
 
 This baseline supports multiple environments (e.g., `dev`, `prod`) using **remote state + locking** and **pre-apply security validation**.
 
@@ -138,7 +138,7 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 
 ---
 
-## 📑 Compliance Mapping
+## Compliance Mapping
 
 | AWS Control         | AWS Service       | ISO 27001:2022 | NCA ECC | NESA IAS |
 |---------------------|------------------|----------------|---------|----------|
