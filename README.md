@@ -527,6 +527,7 @@ See [docs/variables.md](docs/variables.md) for the full list of supported inputs
 ### Contact
 
 **Amina**
+
 Cloud Security Engineer | AWS Security Specialty | Governance & Compliance (ISO 27001, NCA ECC, NESA IAS)
 - LinkedIn: [linkedin.com/in/amina0806](#)
 - GitHub: [github.com/amina0806](https://github.com/amina0806)
