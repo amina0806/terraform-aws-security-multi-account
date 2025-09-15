@@ -524,11 +524,11 @@ See [docs/variables.md](docs/variables.md) for the full list of supported inputs
 ---
 
 
-### Contact
+### Contacts
 
-**Amina**
-Cloud Security Engineer | AWS Security Specialty |Terraform | Governance & Compliance (ISO 27001, NCA ECC, NESA IAS)
+**Amina Jiyu An**
+Cloud Security Engineer | AWS Security Specialty | Terraform | Governance & Compliance (ISO 27001, NCA ECC, NESA IAS)
 
-- LinkedIn: [linkedin.com/in/amina0806](#)
+- LinkedIn: [linkedin.com/in/amina0806](https://www.linkedin.com/in/amina0806/)
 - GitHub: [github.com/amina0806](https://github.com/amina0806)
 - Email: [amina.an0806@gmail.com](mailto:amina.an0806@gmail.com)
