@@ -140,11 +140,12 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 
 ## Compliance Mapping
 
-| AWS Control         | AWS Service       | ISO 27001:2022 | NCA ECC | NESA IAS |
-|---------------------|------------------|----------------|---------|----------|
-| Centralized logging | CloudTrail + KMS | 8.15 Logging   | LGM-02  | MON-01   |
-| Encryption at rest  | KMS CMKs         | 8.24 Crypto    | CRY-01  | CRY-05   |
-| Access control      | IAM MFA + SCPs   | 5.18 Privileged access rights | IAM-03 | ACC-02 |
+| AWS Control         | AWS Service       | ISO 27001:2022              | NCA ECC  | SAMA CSF | NESA IAS |
+|---------------------|------------------|-----------------------------|----------|----------|----------|
+| Centralized logging | CloudTrail + KMS | 8.15 Logging                | LGM-02   | LOG      | MON-01   |
+| Encryption at rest  | KMS CMKs         | 8.24 Cryptography           | CRY-01   | CRY      | CRY-05   |
+| Access control      | IAM MFA + SCPs   | 5.18 Privileged access rights | IAM-03 | ACC, GOV | ACC-02   |
+
 
 📄 Full mapping → [docs/compliance-index.md](docs/compliance-index.md)
 
