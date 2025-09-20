@@ -237,7 +237,7 @@ tf-aws-secure-baseline/
 ### Compliance Mapping
 - **ISO/IEC 27001**: A.8.20 / 8.24 (cryptography), A.12.4 / 8.15 (logging), A.5.23 / 5.23 (cloud services), A.8.16 / 5.15 (access control)
 - **Saudi NCA ECC**: ECC-1.2 (encryption), ECC-1.6 (config mgmt), ECC-5.1 (access control), ECC-6.2 (audit logging)
-
+- **SAMA CSF**: AC-01 (Access Control), CR-04 (Cryptography), and OP-07 (Change & Configuration Management)
 ---
 
 ## Step 2 — Centralized Logging (Detailed Evidence)
