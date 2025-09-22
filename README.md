@@ -220,6 +220,7 @@ tf-aws-secure-baseline/
 
 | Proof | Screenshot |
 |------|------------|
+
 | ✅ S3 Backend Bucket (SSE-KMS + Versioning) | ![S3 Backend](docs/screenshots/step1/state-s3-backend.png) |
 | ✅ DynamoDB Table for State Locking | ![DynamoDB State Lock](docs/screenshots/step1/state-dynamodb.png) |
 
