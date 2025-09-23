@@ -41,6 +41,7 @@ It includes:
 - **CSPM + Threat Detection**: Security Hub (CIS + AFSBP), GuardDuty (S3 Protection + Malware Protection).
 - **Policy-as-Code**: OPA/Rego checks on Terraform **plan.json** + tfsec + Checkov.
 - **Evidence-first**: curated screenshots & outputs managers can audit quickly.
+- **Extensible to Azure/GCP environments**: Easily adaptable to Azure/GCP with minor adjustments.
 
 ---
 
