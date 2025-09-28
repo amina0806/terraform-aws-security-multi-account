@@ -141,14 +141,14 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 
 ## Compliance Mapping
 
-| AWS Control         | AWS Service       | ISO 27001:2022              | NCA ECC  | SAMA CSF | NESA IAS |
-|---------------------|------------------|-----------------------------|----------|----------|----------|
-| Centralized logging | CloudTrail + KMS | 8.15 Logging                | LGM-02   | LOG      | MON-01   |
-| Encryption at rest  | KMS CMKs         | 8.24 Cryptography           | CRY-01   | CRY      | CRY-05   |
-| Access control      | IAM MFA + SCPs   | 5.18 Privileged access rights | IAM-03 | ACC, GOV | ACC-02   |
+| AWS Control          | AWS Service          | ISO/IEC 27001:2022 | NIST CSF             | PCI DSS        | NCA ECC | SAMA CSF     | NESA IAS  | NCSA CSF |
+|----------------------|----------------------|--------------------|----------------------|----------------|---------|--------------|-----------|----------|
+| Centralized logging  | CloudTrail + KMS     | 8.15 Logging       | DE.AE-3, DE.CM-7     | Req. 10.5, 10.6| LGM-02  | LOG          | MON-01    | MON-04   |
+| Encryption at rest   | KMS CMKs             | 8.24 Cryptography  | PR.DS-1, PR.DS-5     | Req. 3.4, 3.5  | CRY-01  | CRY          | CRY-05    | CRY-02   |
+| Access control       | IAM MFA + SCPs       | 5.18 Privileged access rights | PR.AC-1, PR.AC-4 | Req. 7.1, 8.3 | IAM-03  | ACC, GOV     | ACC-02    | IAM-05   |
+| Secure by design     | Terraform + OPA      | 5.36, 8.8 Secure dev | ID.RA-1, PR.IP-3    | Req. 6.3, 6.5  | D3.2    | SSA, RSK     | DEV-02    | DEV-03   |
 
-
-📄 Full mapping → [docs/compliance-index.md](docs/compliance-index.md)
+📄 **Full mapping** → [docs/compliance-index.md](docs/compliance-index.md)
 
 ---
 
@@ -525,8 +525,6 @@ See [docs/variables.md](docs/variables.md) for the full list of supported inputs
 - Or use the GitHub Actions workflow included in .github/workflows/plan.yml.
 
 ---
-
-
 ### Contacts
 
 **Amina Jiyu An**
