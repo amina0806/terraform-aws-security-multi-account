@@ -102,9 +102,9 @@ terraform apply tfplan
 
 - **CloudTrail**: multi-region, KMS-encrypted, log file validation enabled.
 
-- **Security Hub / GuardDuty**: enabled and (optionally) aggregated; CIS + AFSBP subscribed.
+- **Security Hub / GuardDuty**: enabled and  aggregated; CIS + AFSBP subscribed.
 
-- **IAM**: root restricted; (optional) MFA requirement for IAM writes.
+- **IAM**: root restricted; MFA requirement for IAM writes.
 
 - **Config + Conformance Pack**: rules evaluating and reporting.
 
@@ -141,12 +141,13 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 
 ## Compliance Mapping
 
-| AWS Control          | AWS Service          | ISO/IEC 27001:2022 | NIST CSF             | PCI DSS        | NCA ECC | SAMA CSF     | NESA IAS  | NCSA CSF |
-|----------------------|----------------------|--------------------|----------------------|----------------|---------|--------------|-----------|----------|
-| Centralized logging  | CloudTrail + KMS     | 8.15 Logging       | DE.AE-3, DE.CM-7     | Req. 10.5, 10.6| LGM-02  | LOG          | MON-01    | MON-04   |
-| Encryption at rest   | KMS CMKs             | 8.24 Cryptography  | PR.DS-1, PR.DS-5     | Req. 3.4, 3.5  | CRY-01  | CRY          | CRY-05    | CRY-02   |
-| Access control       | IAM MFA + SCPs       | 5.18 Privileged access rights | PR.AC-1, PR.AC-4 | Req. 7.1, 8.3 | IAM-03  | ACC, GOV     | ACC-02    | IAM-05   |
-| Secure by design     | Terraform + OPA      | 5.36, 8.8 Secure dev | ID.RA-1, PR.IP-3    | Req. 6.3, 6.5  | D3.2    | SSA, RSK     | DEV-02    | DEV-03   |
+| AWS Control          | AWS Service          | ISO/IEC 27001:2022         | NIST CSF             | PCI DSS                  | NIS2 (Art. 21 / 23)                          | DORA (Art. 8 / 23 / 30)                    |
+|----------------------|----------------------|----------------------------|----------------------|--------------------------|---------------------------------------------|---------------------------------------------|
+| Centralized logging  | CloudTrail + KMS     | 8.15 Logging & monitoring  | DE.AE-3, DE.CM-7     | Req. 10.5, 10.6          | Art. 21(2)(d) Event logging & monitoring    | Art. 8 Monitoring & detection, Art. 23 Incident reporting |
+| Encryption at rest   | KMS CMKs             | 8.24 Cryptography          | PR.DS-1, PR.DS-5     | Req. 3.4, 3.5            | Art. 21(2)(f) Cryptography & encryption     | Art. 8 Data protection & encryption         |
+| Access control       | IAM MFA + SCPs       | 5.18 Privileged access rights | PR.AC-1, PR.AC-4  | Req. 7.1, 8.3            | Art. 21(2)(b) Access control & asset mgmt   | Art. 8 Access management (MFA, PIM, SCPs)  |
+| Secure by design     | Terraform + OPA      | 5.36 Secure dev lifecycle, 8.8 Technical review | ID.RA-1, PR.IP-3 | Req. 6.3, 6.5            | Art. 21(2)(c) Risk assessment, 21(2)(g) Incident handling | Art. 8 ICT risk management, Art. 30 Third-party risk management |
+
 
 📄 **Full mapping** → [docs/compliance-index.md](docs/compliance-index.md)
 
@@ -235,11 +236,19 @@ tf-aws-secure-baseline/
 - IAM least-privilege access to backend
 
 ---
-
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.8.20 / 8.24 (cryptography), A.12.4 / 8.15 (logging), A.5.23 / 5.23 (cloud services), A.8.16 / 5.15 (access control)
-- **Saudi NCA ECC**: ECC-1.2 (encryption), ECC-1.6 (config mgmt), ECC-5.1 (access control), ECC-6.2 (audit logging)
-- **SAMA CSF**: AC-01 (Access Control), CR-04 (Cryptography), and OP-07 (Change & Configuration Management)
+
+- **NIS2 (Article 21 / 23)**
+  - Art. 21(2)(b): Access control & asset management
+  - Art. 21(2)(d): Event logging & monitoring
+  - Art. 21(2)(f): Cryptography & encryption
+  - Art. 23: Incident reporting (audit-ready logs)
+
+- **DORA (Article 8 / 30)**
+  - Art. 8: ICT risk management — secure configuration, encryption, and access control
+  - Art. 8: Data protection — encryption of ICT assets and state files
+  - Art. 30: Third-party ICT risk management — centralized, auditable backend supports governance of outsourced ICT services
+
 ---
 
 ## Step 2 — Centralized Logging (Detailed Evidence)
@@ -271,10 +280,17 @@ tf-aws-secure-baseline/
 - CloudWatch Logs KMS-encrypted
 
 ---
-
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.12.4 / 8.15 (logging), A.8.20 / 8.24 (cryptography), A.8.24 / 8.12 (DLP)
-- **Saudi NCA ECC**: ECC-1.2 (data at rest), ECC-1.3 (data in transit), ECC-3.1 (logging), ECC-3.2 (log protection), ECC-5.1 (access control)
+
+- **NIS2 (Article 21 / 23)**
+  - Art. 21(2)(d): Event logging & monitoring
+  - Art. 21(2)(g): Incident handling
+  - Art. 23: Incident reporting (audit-ready alerts & logs)
+
+- **DORA (Article 8 / 23)**
+  - Art. 8: Monitoring & detection — continuous log collection (CloudTrail, CloudWatch)
+  - Art. 23: ICT incident reporting — GuardDuty/Security Hub alerts support reporting obligations
+
 
 ---
 
@@ -308,10 +324,14 @@ tf-aws-secure-baseline/
 ---
 
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.12.4 / 8.15 (logging), A.8.20 / 8.24 (crypto), A.8.23 / 5.23 (cloud services), A.18.2.3 / 5.35 (compliance review)
-- **Saudi NCA ECC**: OAM-06 (config mgmt), OAM-08 (baselines), DPS-01 (encryption), LMP-04 (logs), IAM-03 (identity hardening)
-- **UAE NESA IAS**: Secure baseline, data protection, audit & accountability, credential hygiene, monitoring & compliance
 
+- **NIS2 (Article 21)**
+  - Art. 21(2)(a): Governance & policies
+  - Art. 21(2)(c): Risk assessment
+
+- **DORA (Article 8)**
+  - Art. 8: ICT risk management — automated drift detection & compliance monitoring
+  - Art. 8: Governance of ICT assets — evidence via conformance packs
 ---
 
 ## Step 4 — Security Services (CSPM + Threat Detection) (Detailed Evidence)
@@ -343,9 +363,14 @@ tf-aws-secure-baseline/
 ---
 
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.12.4 / 8.15 (logging & monitoring), A.5.23 (cloud monitoring)
-- **CIS AWS Foundations**: Benchmarks enforced via Security Hub
-- **Regional**: NCA ECC D5.5 (threat detection), NESA IAS (monitoring & governance)
+- **NIS2 (Article 21 / 23)**
+  - Art. 21(2)(d): Event monitoring
+  - Art. 21(2)(g): Incident handling
+  - Art. 23: Incident reporting (structured alerts for deadlines)
+
+- **DORA (Article 8 / 23)**
+  - Art. 8: Monitoring & detection — continuous threat detection
+  - Art. 23: ICT incident reporting — Security Hub/SIEM integration for reporting workflows
 
 ---
 
@@ -378,10 +403,13 @@ tf-aws-secure-baseline/
 ---
 
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.12.1.2 / 5.14 (change mgmt), A.18.2.3 / 5.35 (compliance review)
-- **CIS AWS Foundations**: enforced via Hub CIS subscription
-- **Regional**: NCA ECC (logging + compliance), NESA IAS (audit governance)
+- **NIS2 (Article 21)**
+  - Art. 21(2)(c): Risk assessment — policy evaluation of Terraform plans
+  - Art. 21(2)(e): Supply chain security — enforce vendor/region allowlists
 
+- **DORA (Article 8 / 30)**
+  - Art. 8: ICT risk management — CI/CD pipelines enforce secure baselines
+  - Art. 30: Third-party ICT risk management — dependency scanning & SBOM checks
 ---
 
 ## Step 6 — AWS Organizations & SCPs (Detailed Evidence)
@@ -414,10 +442,13 @@ tf-aws-secure-baseline/
 ---
 
 ### Compliance Mapping
-- **ISO/IEC 27001**: A.5.1.1 / 5.1 (policies), A.12.1.2 / 5.14 (change mgmt), A.12.4 / 8.15 (logging enforced), A.18.2.3 / 5.35 (compliance)
-- **CIS AWS Foundations**: 1.1 CloudTrail all regions, 1.2 approved regions only, 1.5 config logging
-- **Saudi NCA ECC**: D5.2 (IAM MFA), D5.5 (threat detection), D1/D2 (logging), CC-06 (compliance checks)
-- **UAE NESA IAS**: Security Monitoring, Threat Mgmt, Compliance Governance
+- **NIS2 (Article 21)**
+  - Art. 21(2)(a): Governance & risk management policies
+  - Art. 21(2)(b): Access control & asset management
+
+- **DORA (Article 8 / 30)**
+  - Art. 8: Governance — preventive guardrails for critical ICT assets
+  - Art. 30: Third-party ICT governance — restrict use to approved regions/services
 
 ---
 
@@ -528,8 +559,8 @@ See [docs/variables.md](docs/variables.md) for the full list of supported inputs
 ### Contacts
 
 **Amina Jiyu An**
-Cloud Security Engineer | AWS Security Specialty |Multi-cloud (AWS,Azure,GCP) | Terraform & Policy as Code | Governance & Compliance (ISO 27001,NIST CSF, NCA ECC, NESA IAS)
-
+Cloud Security & Compliance Engineer | Terraform • IAM/PAM • Policy-as-Code • DevSecOps |
+ISO 27001 • PCI DSS • NIS2 • DORA
 - LinkedIn: [linkedin.com/in/amina0806](https://www.linkedin.com/in/amina0806/)
 - GitHub: [github.com/amina0806](https://github.com/amina0806)
 - Email: [amina.an0806@gmail.com](mailto:amina.an0806@gmail.com)

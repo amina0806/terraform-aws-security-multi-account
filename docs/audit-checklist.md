@@ -67,4 +67,4 @@ Evidence links point to screenshots and mappings in the repo.
 - Preventive controls (SCPs)
 - Detective controls (Config, Security Hub, GuardDuty)
 - Strong evidence (screenshots, Terraform code, OPA policies)
-- Compliance mappings (ISO 27001, NCA ECC, SAMA CSF, NESA IAS, CIS AWS Foundations)
+- Compliance mappings (ISO 27001,NIST CSF, PCI DSS, NIS2, DORA, CIS AWS Foundations)
