@@ -1,14 +1,31 @@
 [![terraform-security-checks](https://github.com/amina0806/terraform-aws-security-multi-account/actions/workflows/plan.yml/badge.svg)](https://github.com/amina0806/terraform-aws-security-multi-account/actions/workflows/plan.yml)
-# Enterprise AWS Secure Baseline (Terraform + PaC)
+# Enterprise AWS Secure Baseline (Terraform + Policy-as-Code)
 
-This project demonstrates **how to design and enforce a secure AWS environment at enterprise scale.**
-It includes:
+This project demonstrates the design and implementation of a **secure AWS multi-account foundation** using Infrastructure-as-Code and Compliance-as-Code practices.
+It reflects how regulated organizations (finance, payments, critical infrastructure) can meet **ISO 27001, PCI DSS, NIS2, and DORA requirements** while building on AWS at scale.
 
-- Multi-account setup with AWS Organizations & Service Control Policies
-- Centralized logging (CloudTrail, CloudWatch, S3 + KMS)
-- AWS Config Conformance Packs for compliance monitoring
-- Security Hub & GuardDuty as Cloud Security Posture Management (CSPM) tools
-- Policy-as-Code (OPA/Rego) to enforce encryption, IAM boundaries, and security service activation
+## Key Capabilities
+
+- **Enterprise account structure** with AWS Organizations and Service Control Policies (SCPs) to enforce governance and region restrictions.
+- **Centralized logging** (CloudTrail, CloudWatch, S3 + KMS) with encryption, versioning, and audit readiness.
+- **Compliance monitoring** via AWS Config Conformance Packs for continuous risk assessment.
+- **Threat detection & response** using Security Hub and GuardDuty as CSPM building blocks.
+- **Policy-as-Code (OPA/Rego)** to automate enforcement of encryption, IAM boundaries, and mandatory security services in CI/CD pipelines.
+- **IAM/PAM guardrails** with permission boundaries and MFA enforcement for least-privilege access.
+
+## Compliance Alignment
+
+- **ISO/IEC 27001:2022** → Annex A controls for encryption, logging, and access management.
+- **PCI DSS** → Logging (Req. 10), encryption (Req. 3), and access control (Req. 7–8).
+- **NIS2 (EU Directive)** → Article 21 (access control, cryptography, risk management) and Article 23 (incident reporting).
+- **DORA (EU Regulation)** → Article 8 (ICT risk management, monitoring), Article 23 (incident handling), and Article 30 (third-party governance).
+
+---
+
+### Positioning
+This portfolio project is not a lab demo but an **end-to-end enterprise baseline** that proves capability in **Terraform, IAM/PAM, Policy-as-Code, and EU compliance mapping**.
+It shows how I can deliver **secure landing zones** that are both technically hardened and **audit-ready** for regulators.
+
 
 ---
 
