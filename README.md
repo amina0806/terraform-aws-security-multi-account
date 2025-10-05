@@ -169,11 +169,9 @@ Full details (with screenshots + ISO mappings) → [Audit Checklist](docs/audit-
 📄 **Full mapping** → [docs/compliance-index.md](docs/compliance-index.md)
 
 ---
-
 ## Architecture Diagram
 
 ![Architecture Diagram](docs/architecture-diagram.png)
-
 
 ---
 **Key Components**
