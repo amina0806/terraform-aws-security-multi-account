@@ -1,7 +1,6 @@
 module "organizations" {
   source = "../../modules/organizations"
 
-  # Adjust as needed
   ou_names        = ["security", "workloads", "sandbox", "infra"]
   allowed_regions = ["us-east-1"]
 
