@@ -41,16 +41,7 @@
 
 ---
 
-## Intellectual Property Notice
-
-This repository contains the **public open-core baseline** of the Global Compliance Code™ Framework.
-The complete multi-framework mappings, control ontology, and evidence logic are proprietary to **Global Compliance Code OÜ**.
-Commercial licensing or partnership inquiries: contact@globalcompliancecode.com
-
----
-
 ### AWS Multi-Framework Compliance Baseline
 
-by **GlobalComplianceCode**
-Maintained by [Amina Jiyu An](https://www.linkedin.com/in/amina0806)
-GitHub: [github.com/amina0806](https://github.com/amina0806)
+by [Amina Jiyu An](https://www.linkedin.com/in/amina0806)
+
